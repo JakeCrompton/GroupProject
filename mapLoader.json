@@ -1,3 +1,7 @@
 {
-    "name": "test"
+    "Room": "Kitchen",
+    "Floor": "First",
+    "Locations": [
+        {"Lootable": "Fridge", "Loot": "Food"}
+    ]
 }
