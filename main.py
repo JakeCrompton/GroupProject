@@ -3,35 +3,34 @@
 
 import json, os
 
-# load the json map file
+# loads the json map file
 base_path = os.path.dirname(__file__)
 mapFile = os.path.join(base_path, "mapLoader.json")
 
-# reads the json file
+# reads the json file 
 with open(mapFile, "r") as file:
     mapData = json.load(file)
 
-# get the players starting location and inventory
-player_location = mapData["player"]["start_location"]
-inventory = mapData["player"]["inventory"]
+# gets player data
+player_location = mapData['player']['start_location']
+inventory = mapData['player']['inventory']
 
-print(f"You start in the player {player_location}.")
-print(f"Your inventory {inventory}")
+print(f"You will start in {player_location}")
+print(f"you have {inventory} in your inventory")
 
-# get info about the new room
-current_room = mapData["Rooms"][player_location]
+# get info about new room
+current_room = mapData['Rooms'][player_location]
 print(f"\n{current_room['description']}")
 print(f"Items here: {current_room['items']}")
 print(f"Exits: {list(current_room['exits'].keys())}")
 
-print(f"What direction would you like to go {current_room['exits']}")
-direction = input(">")
+print(f"Where would you like to go? {current_room['exits']}")
+direction = input(">").strip().lower()
 
-
-# check if direction is valid
+# check if the direction is valid
 if direction in current_room['exits']:
     new_room = current_room['exits'][direction]
     player_location = new_room
-    print(f"\nYou move {direction} to the {player_location}")
+    print(f"\nYou have moved {direction} to the {player_location}")
 else:
-    print("\nYou cannot move that way.")
+    print("You cannot move that way")

@@ -1,15 +1,16 @@
-{   "player": {
-    "start_location": "Hall",
-    "inventory": []
-},
+{
+    "player": {
+        "start_location": "Hall",
+        "inventory": {}
+    },
     "Rooms": {
         "Hall": {
             "description": "You are in a long narrow hall.",
             "exits": {"north": "Kitchen", "south": "Main door"},
-            "items": ["Key"]
+            "items": ["key"]
         },
         "Kitchen": {
-            "description": "A huge kitchen.",
+            "description": "A big kitchen",
             "exits": {"south": "Hall"},
             "items": []
         }
