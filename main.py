@@ -1,6 +1,8 @@
 # If the script doesnt work (says the file doesnt exist or sum) type in "cd yourfilelocation" in the output
 # means we can change stuff inside the map and it would work as it would as if it was something else (Data wise)
 
+# pygame stuff is just testing rn it will be changed
+
 # importing json and os so it can find the files + pygame for the window
 import json, os, pygame, sys
 
@@ -36,7 +38,7 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    screen.fill(white) # doesnt work rn
+    screen.fill(white) 
 
     # grid lines
     for x in range(0, window_width, grid_size):
@@ -48,6 +50,9 @@ while running:
 
 pygame.quit()
 sys.exit()
+
+
+# MAIN PART BELOW
 
 # gets player data
 player_location = mapData['player']['start_location']
