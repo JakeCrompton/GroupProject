@@ -4,6 +4,9 @@
 # importing Datasets 
 import json, os, pygame
 
+# importing json and os so it can find the files + pygame for the window
+import json, os
+
 # loads the json map file
 base_path = os.path.dirname(__file__)
 mapFile = os.path.join(base_path, "mapLoader.json")
@@ -33,5 +36,9 @@ if direction in current_room['exits']:
     new_room = current_room['exits'][direction]
     player_location = new_room
     print(f"\nYou have moved {direction} to the {player_location}")
+    if current_room["items"]:  # THIS WAS JUST TO TEST ADDING ITEMS (still not finished, adds the [''] to the item)
+        inventory.insert(0, current_room["items"])
+        print(f"Added {current_room['items']} to your inventory")
+        print(f"This is your inventory now: {inventory}")  # FIX THIS 
 else:
     print("You cannot move that way")
