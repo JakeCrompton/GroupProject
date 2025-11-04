@@ -1,6 +1,8 @@
 # If the script doesnt work (says the file doesnt exist or sum) type in "cd yourfilelocation" in the output
 # means we can change stuff inside the map and it would work as it would as if it was something else (Data wise)
 
+
+# importing json and os so it can find the files + pygame for the window
 import json, os
 
 # loads the json map file
@@ -32,5 +34,9 @@ if direction in current_room['exits']:
     new_room = current_room['exits'][direction]
     player_location = new_room
     print(f"\nYou have moved {direction} to the {player_location}")
+    if current_room["items"]:  # THIS WAS JUST TO TEST ADDING ITEMS (still not finished, adds the [''] to the item)
+        inventory.insert(0, current_room["items"])
+        print(f"Added {current_room['items']} to your inventory")
+        print(f"This is your inventory now: {inventory}")  # FIX THIS 
 else:
     print("You cannot move that way")

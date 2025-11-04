@@ -1,18 +1,18 @@
 {
     "player": {
         "start_location": "Hall",
-        "inventory": {}
+        "inventory": []
     },
     "Rooms": {
         "Hall": {
             "description": "You are in a long narrow hall.",
             "exits": {"north": "Kitchen", "south": "Main door"},
-            "items": ["key"]
+            "items": []
         },
         "Kitchen": {
             "description": "A big kitchen",
             "exits": {"south": "Hall"},
-            "items": []
+            "items": ["key"]
         }
     },
     "win_condition": "player_has_won",
