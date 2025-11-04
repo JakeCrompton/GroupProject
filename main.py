@@ -2,7 +2,7 @@
 # means we can change stuff inside the map and it would work as it would as if it was something else (Data wise)
 
 # importing json and os so it can find the files + pygame for the window
-import json, os, pygame
+import json, os, pygame, sys
 
 # loads the json map file
 base_path = os.path.dirname(__file__)
@@ -11,6 +11,43 @@ mapFile = os.path.join(base_path, "mapLoader.json")
 # reads the json file 
 with open(mapFile, "r") as file:
     mapData = json.load(file)
+
+pygame.init()
+# pygame settings (for the window)
+grid_size = 20
+grid_width = 25  # how many squares on width
+grid_length = 25  # how many squares on length
+window_width = grid_size * grid_width
+window_length = grid_size * grid_width
+
+# colours (RGB)
+black = (0, 0, 0)
+white = (255, 255, 255)
+red = (255, 0, 0)
+
+# create woindow
+screen = pygame.display.set_mode((window_width, window_length))
+pygame.display.set_caption("Test grid")
+
+# main loop (will mvoe after testing)
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    screen.fill(white) # doesnt work rn
+
+    # grid lines
+    for x in range(0, window_width, grid_size):
+        pygame.draw.line(screen, black, (x, 0), (x, window_length))
+    for y in range(0, window_length, grid_size):
+        pygame.draw.line(screen, black, (0, y), (window_width, y))
+
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit()
 
 # gets player data
 player_location = mapData['player']['start_location']
