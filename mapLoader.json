@@ -1,7 +1,7 @@
 {
     "player": {
         "start_location": "Hall",
-        "inventory": []
+        "inventory": ["Main door Key"]
     },
     "Rooms": {
         "Hall": {
@@ -13,7 +13,14 @@
             "description": "A big kitchen",
             "exits": {"south": "Hall"},
             "items": ["key"]
+        },
+        "Main door": {
+            "description": "The door you entered with",
+            "exits": {"": 0},
+            "items": [],
+            "required_items": ["Main door Key"]
         }
+    
     },
     "win_condition": "player_has_won",
     "lose_condition": "player_dies"
