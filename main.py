@@ -1,9 +1,9 @@
 # If the script doesnt work (says the file doesnt exist or sum) type in "cd yourfilelocation" in the output
-# means we can change stuff inside the map and it would work as it would as if it was something else (Data wise)
+# means we can change stuff inside the map and it would work as it would as if it was something else. Can store map data inside the json file such as drops, npcs, enemies and other shit like that
 
 # pygame stuff is just testing rn it will be changed
 
-# importing json and os so it can find the files + pygame for the window
+# importing json and os so it can find the files + pygame for the window (adding pygame back later it was always running and got in the way)
 import json, os, pygame, sys
 
 # loads the json map file
@@ -14,52 +14,24 @@ mapFile = os.path.join(base_path, "mapLoader.json")
 with open(mapFile, "r") as file:
     mapData = json.load(file)
 
-pygame.init()
-# pygame settings (for the window)
-grid_size = 20
-grid_width = 25  # how many squares on width
-grid_length = 25  # how many squares on length
-window_width = grid_size * grid_width
-window_length = grid_size * grid_width
-
-# colours (RGB)
-black = (0, 0, 0)
-white = (255, 255, 255)
-red = (255, 0, 0)
-
-# create woindow
-screen = pygame.display.set_mode((window_width, window_length))
-pygame.display.set_caption("Test grid")
-
-# main loop (will mvoe after testing)
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    screen.fill(white) 
-
-    # grid lines
-    for x in range(0, window_width, grid_size):
-        pygame.draw.line(screen, black, (x, 0), (x, window_length))
-    for y in range(0, window_length, grid_size):
-        pygame.draw.line(screen, black, (0, y), (window_width, y))
-
-    pygame.display.flip()
-
-pygame.quit()
-sys.exit()
-
-
 # MAIN PART BELOW
+
+# rounds of *zombies* that will attack you, you can only move a certain amount of steps inbetween the round but every 5 rounds you can move as much as you want till you choose to resume the game (gives you time to progress with the story, cannot complete the whole story in that time)
+
+def move(direction, player_location, mapData):  # can run this function instead of running it each time the player wants to go to a different room
+    current_room = mapData['Rooms'][player_location]
+    
+    if direction in current_room['exits']:
+        new_room = current_room['exits'][direction]
+        print(f"You have moved {direction} to {new_room}")
+        return new_room
+    else:
+        print("You cannot move that way")
+        return player_location
 
 # gets player data
 player_location = mapData['player']['start_location']
 inventory = mapData['player']['inventory']
-
-print(f"You will start in {player_location}")
-print(f"you have {inventory} in your inventory")
 
 # get info about new room
 current_room = mapData['Rooms'][player_location]
@@ -70,14 +42,7 @@ print(f"Exits: {list(current_room['exits'].keys())}")
 print(f"Where would you like to go? {current_room['exits']}")
 direction = input(">").strip().lower()
 
-# check if the direction is valid
-if direction in current_room['exits']:
-    new_room = current_room['exits'][direction]
-    player_location = new_room
-    print(f"\nYou have moved {direction} to the {player_location}")
-    if current_room["items"]:  # THIS WAS JUST TO TEST ADDING ITEMS (still not finished, adds the [''] to the item)
-        inventory.insert(0, current_room["items"])
-        print(f"Added {current_room['items']} to your inventory")
-        print(f"This is your inventory now: {inventory}")  # FIX THIS 
-else:
-    print("You cannot move that way")
+player_location = move(direction, player_location, mapData)
+current_room = mapData['Rooms'][player_location]
+print(f"You are now in {player_location}")
+# check if the direction is valid 
