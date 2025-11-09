@@ -1,0 +1,8 @@
+{
+    "enemies": {
+        "Zombie": {"damage": 5, "health": 10}
+    },
+    "quests": {
+        "main": {"somethinghere": 0}
+    }
+}
