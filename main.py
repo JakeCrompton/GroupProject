@@ -1,4 +1,4 @@
-import json, os, pygame, sys
+import json, os, pygame, sys, time
 
 base_path = os.path.dirname(__file__) # finds the directory for the files
 mapFile = os.path.join(base_path, "mapLoader.json")
@@ -35,23 +35,20 @@ def moveRoom(direction, player_location, mapData): # checks if the direction the
         print("You cannot move that way")
         return player_location
     
-def clearOutput():
-    print("This is going to clear the output when this function is called (cba making it rn tho)")
+def clearOutput(): # call this function when you want to clear whatever is in the output (cleans it up)
+    os.system('cls')
 
 # Main
-round = 0
-
 while True: 
+    clearOutput()
     current_room = mapData['Rooms'][player_location] # get info about new room
-    print(f"\n{current_room['description']}")
-
-    print(inventory) # testing with keys
+    print(f"\n{current_room['description']}: {player_location}")
     
     print("Where would you like to go?")
     for direction, room in current_room['exits'].items():
         print(f"-    {direction}: {room}")
-    direction = input(">").strip().lower()
+    direction = input("> ").strip().lower()
 
     player_location = moveRoom(direction, player_location, mapData)
     current_room = mapData['Rooms'][player_location]
-
+    time.sleep(2)
