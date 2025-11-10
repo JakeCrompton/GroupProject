@@ -1,22 +1,29 @@
 {
     "player": {
         "start_location": "Hall",
+        "start_square": [1,1],
         "inventory": [""]
     },
     "Rooms": {
         "Hall": {
             "description": "You are in a long narrow hall",
             "exits": {"north": "Kitchen", "south": "Main door"},
+            "room_size": [15, 15],
+            "room_start_square": [5,5],
             "items": []
         },
         "Kitchen": {
             "description": "A big kitchen",
             "exits": {"south": "Hall"},
+            "room_size": [15, 15],
+            "room_start_square": [5,5],
             "items": ["key"]
         },
         "Main door": {
             "description": "The door you entered with",
             "exits": {"": 0},
+            "room_size": [15, 15],
+            "room_start_square": [5,5],
             "items": [],
             "required_items": ["Main door Key"]
         }

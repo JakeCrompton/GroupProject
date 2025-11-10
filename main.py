@@ -8,9 +8,12 @@ with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
 
 player_location = mapData['player']['start_location'] # gets player data
+player_square = mapData['player']['start_square']
 inventory = mapData['player']['inventory']
 
 # Functions
+def clearOutput(): # call this function when you want to clear whatever is in the output (cleans it up)
+    os.system('cls')
 
 def moveRoom(direction, player_location, mapData): # checks if the direction the user entered is valid (using a function so easier to run)
     current_room = mapData['Rooms'][player_location]
@@ -29,17 +32,19 @@ def moveRoom(direction, player_location, mapData): # checks if the direction the
                 return player_location
             
         print(f"You have moved {direction} to {new_room}")
+        player_square = next_room_data['room_start_square'] # changes the players square to the door of the next room
+        print(f"You are now on the square {player_square}")
         return new_room
     
     else:
         print("You cannot move that way")
         return player_location
-    
-def clearOutput(): # call this function when you want to clear whatever is in the output (cleans it up)
-    os.system('cls')
+
+def moveSquare():
+    print("1")
 
 # Main
-while True: 
+while True:
     clearOutput()
     current_room = mapData['Rooms'][player_location] # get info about new room
     print(f"\n{current_room['description']}: {player_location}")
@@ -51,4 +56,4 @@ while True:
 
     player_location = moveRoom(direction, player_location, mapData)
     current_room = mapData['Rooms'][player_location]
-    time.sleep(2)
+    time.sleep(20)
