@@ -40,11 +40,61 @@ def moveRoom(direction, player_location, mapData): # checks if the direction the
         print("You cannot move that way")
         return player_location
 
-def moveSquare():
-    print("1")
+def moveSquare(direction, player_square, player_location, mapData):  # in this function is where it will check if the square is a door or sum (still need to add it but it works just not well)
+    count = 0
+    for i in current_room['room_size']:
+        if player_square[count] >= i:
+            print("You cannot move that way because youll be in the wall")
+            didNotMove = True
+            print(player_square)
+            time.sleep(2)
+            return didNotMove
+    if direction == "up":
+        player_square[0] += 1
+        print(f"Moved up a square. Current square: {player_square}")
+        didNotMove = False
+        time.sleep(2)
+        return didNotMove 
+    elif direction == "down":
+        player_square[0] -= 1
+        print(f"Moved down a square. Current square: {player_square}")
+        didNotMove = False
+        time.sleep(2)
+        return didNotMove 
+    elif direction == "right":
+        player_square[1] += 1
+        print(f"You move right a square. Current square: {player_square}")
+        didNotMove = False
+        time.sleep(2)
+        return didNotMove 
+    elif direction == "left":
+        player_square[1] -= 1
+        print(f"You moved left a square. Current square: {player_square}")
+        didNotMove = False
+        time.sleep(2)
+        return didNotMove 
+    time.sleep(500)
 
 # Main
-while True:
+didNotMove = True
+validDirection = ["up", "down", "right", "left"]
+while didNotMove == True:
+    clearOutput()
+    current_room = mapData['Rooms'][player_location]
+    print("Which direction would you like to go?")
+    for i in validDirection:
+        print(f"{i}")
+    direction = input("> ").strip().lower()
+    if direction in validDirection:
+        player_square = moveSquare(direction, player_square, player_location, mapData)
+    else:
+        print("Invalid option")
+        time.sleep(3)
+
+
+
+changeRoom = False
+while changeRoom == True:
     clearOutput()
     current_room = mapData['Rooms'][player_location] # get info about new room
     print(f"\n{current_room['description']}: {player_location}")
