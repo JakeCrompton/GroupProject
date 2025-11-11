@@ -49,7 +49,7 @@ def moveSquare(direction, player_square, player_location, mapData):  # in this f
             print(player_square)
             time.sleep(2)
             return didNotMove
-    if direction == "up":
+    if direction == "up":  # do for loop instead
         player_square[0] += 1
         print(f"Moved up a square. Current square: {player_square}")
         didNotMove = False
