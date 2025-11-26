@@ -31,4 +31,4 @@
     },
     "win_condition": "player_has_won",
     "lose_condition": "player_dies"
-}
+} 
