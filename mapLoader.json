@@ -1,32 +1,34 @@
 {
     "player": {
-        "start_location": "Hall",
-        "start_square": [5, 5],
+        "start_location": "Main door",
+        "start_floor": "First Floor",
         "inventory": [""]
     },
-    "Rooms": {
+    "First Floor": {
         "Hall": {
             "description": "You are in a long narrow hall",
             "exits": {"north": "Kitchen", "south": "Main door"},
-            "room_size": [15, 20],
-            "room_start_square": [5,5],
             "items": []
         },
         "Kitchen": {
             "description": "A big kitchen",
             "exits": {"south": "Hall"},
-            "room_size": [15, 15],
-            "room_start_square": [5,5],
             "items": ["key"]
         },
         "Main door": {
             "description": "The door you entered with",
-            "exits": {"": 0},
-            "room_size": [15, 15],
-            "room_start_square": [5,5],
+            "exits": {"north": "Hall"},
             "items": [],
             "required_items": ["Main door Key"]
+        },
+        
+    "Second Floor": {
+        "Room 101": {
+            "description": "Room 101 (diddys room)",
+            "exits": {"south": "Elevator"},
+            "items": ["Diddys lotion"]
         }
+    }
     
     },
     "win_condition": "player_has_won",
