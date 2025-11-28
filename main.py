@@ -2,6 +2,7 @@ import json, os, pygame, sys, time
 
 base_path = os.path.dirname(__file__) # finds the directory for the files
 mapFile = os.path.join(base_path, "mapLoader.json")
+saveFIle = os.path.join(base_path, "savefile.json")
 
 with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
@@ -13,7 +14,7 @@ current_floor = mapData['player']['start_floor']
 def clearOutput(): # call this function when you want to clear whatever is in the output (cleans it up)
     os.system('cls')
 
-def commands(playerInput):
+def commands(playerInput, current_location, current_floor):
     words = playerInput.lower().split()
     command = words[0]
     arguement = words[1]
@@ -25,23 +26,24 @@ def commands(playerInput):
     }    
 
     if command in actions:
-        actions[command](arguement)
+        actions[command](arguement, mapData, current_location, current_floor)
     else:
         print("Invalid input")
 
-    
-
-def go(direction, mapData, player_location, player_floor):
-    print(f"You are trying to move {direction}")
+def go(direction, mapData, current_location, current_floor):
+    try:
+        print(f"You are trying to move {direction} to {mapData[current_floor][current_location]['exits'][direction]}")
+    except KeyError:
+        print("Not a valid direction")
 
 def inventory():
     print("Inventory function")
 
 def drop(item):
-    "drop function"
+    print("drop function")
 
 def save_game():
-    "save function"
+    print("save function")
 
 # Main loop
 while True:
@@ -55,5 +57,5 @@ while True:
 
     print("\nWhat would you like to do?")
     choice = input("> ")
-    commands(choice)
+    commands(choice, current_location, current_floor)
     time.sleep(5)
