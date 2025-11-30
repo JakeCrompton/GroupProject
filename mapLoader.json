@@ -1,19 +1,23 @@
 {
     "player": {
-        "start_location": "Main door",
+        "start_location": "Hall",
         "start_floor": "First Floor",
-        "inventory": [""]
+        "inventory": ["Main door key"]
     },
     "First Floor": {
         "Hall": {
             "description": "You are in a long narrow hall",
             "exits": {"north": "Kitchen", "south": "Main door"},
-            "items": []
+            "items": ["Bat"],
+            "required_items": []
+
         },
         "Kitchen": {
             "description": "A big kitchen",
             "exits": {"south": "Hall"},
-            "items": ["key"]
+            "items": ["key"],
+            "required_items": []
+
         },
         "Main door": {
             "description": "The door you entered with",
