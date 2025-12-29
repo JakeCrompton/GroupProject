@@ -1,6 +1,4 @@
-# needs fixing - pick up function and command function, the input is case sensitive which we dont want
-
-import json, os, pygame, sys, time
+import json, os, sys, time
 
 base_path = os.path.dirname(__file__) # finds the directory for the files 
 mapFile = os.path.join(base_path, "mapLoader.json")
@@ -99,7 +97,7 @@ def pickUp(item, mapData, current_location, current_floor):
     return current_location
 
 def save_game(mapData):
-    print("save function")
+    print("save function") # not sure how to implement this yet
 
 def helpCommand(argument, mapData, current_location, current_floor):
     print("Available commands:")
@@ -110,9 +108,32 @@ def helpCommand(argument, mapData, current_location, current_floor):
     print("-    help | Show this help list")
     return current_location
 
+def loadSave():
+    print("Have you played before?")
+    choice = input("> ").lower().strip()
+    if choice == "yes":
+        print("Welcome back!")
+        time.sleep(1)
+        print("Would you like to start a New game or Continue?")
+        NewOrLoad = input("> ").lower().strip()
+        if NewOrLoad == "new game" or NewOrLoad == "new":
+            print("Starting New game.")
+        else:
+            print("Loading your save..")
+    else:
+        print("Would you like to go through a tutorial?")
+        SkipTutorial = input("> ").lower().strip()
+        if SkipTutorial == "yes":
+            print("Loading tutorial..")
+        else:
+            print("Skipping...")
+    time.sleep(2)
+
+
 # Main loop
 while True:
     clearOutput()
+
     print(f"You are currently at {current_location} on the {current_floor}")
 
     exits = mapData[current_floor][current_location]['exits']
@@ -126,7 +147,7 @@ while True:
             print(f"-   {items.capitalize()}")
 
     print("\nWhat would you like to do?")
-    choice = input("> ")
+    choice = input("> ").lower().strip()
     current_location = commands(choice, current_location, current_floor)
 
-    time.sleep(10)
+    time.sleep(5)
