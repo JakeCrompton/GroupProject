@@ -130,6 +130,3 @@ while True:
     current_location = commands(choice, current_location, current_floor)
 
     time.sleep(10)
-
-    #yess
-    #yesssssss
