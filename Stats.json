@@ -1,1 +1,42 @@
 
+{
+  "stat_shop": [
+    {
+      "id": "damage_upgrade",
+      "name": "Sharpen Blade",
+      "base_cost": 50,
+      "times_bought": 0,
+      "effects": {
+        "damage": 5
+      }
+    },
+    {
+      "id": "crit_upgrade",
+      "name": "Polish Blade",
+      "base_cost": 50,
+      "times_bought": 0,
+      "effects": {
+        "crit_chance": 1
+      }
+    },
+    {
+      "id": "hit_upgrade",
+      "name": "Increase Length",
+      "base_cost": 50,
+      "times_bought": 0,
+      "effects": {
+        "hit_chance": 5
+      }
+    },
+    {
+      "id": "condition_upgrade",
+      "name": "Improve Condition",
+      "base_cost": 50,
+      "times_bought": 0,
+      "effects": {
+        "condition": 5
+      }
+    }
+  ]
+}
+
