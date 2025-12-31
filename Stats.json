@@ -25,7 +25,7 @@
       "base_cost": 50,
       "times_bought": 0,
       "effects": {
-        "hit_chance": 5
+        "hit_chance": 50
       }
     },
     {
@@ -34,7 +34,7 @@
       "base_cost": 50,
       "times_bought": 0,
       "effects": {
-        "condition": 5
+        "condition": 50
       }
     }
   ]
