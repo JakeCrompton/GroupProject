@@ -1,4 +1,4 @@
-import json, os, sys, time
+import json, os, sys, time, random
 
 base_path = os.path.dirname(__file__) # finds the directory for the files 
 mapFile = os.path.join(base_path, "mapLoader.json")
@@ -95,6 +95,49 @@ def pickUp(item, mapData, current_location, current_floor):
         
     print(f"There is no {item} in this room")
     return current_location
+
+def zombieHandler():
+    global EnemyInRoom, CurrentEnemy
+    EnemyInRoom.clear() # reset room each time
+    amount = random.randint(1,5)
+
+    for i in range(amount):
+        UpdatedLabel = "Zombie " + str(i + 1)
+        EnemyInRoom.append(UpdatedLabel)
+
+    print(f"{amount} zombies has spawned")
+    print(EnemyInRoom)
+
+    print("What would you like to do?")
+    choice = input("> ").strip().lower()
+    if choice == "fight":
+        print("Which one would you like to fight? (enter a number)")
+        try:
+            choice1 = int(input("> "))
+            if choice1 < 1 or choice1 > amount:
+                print("That isn't a valid choice")
+                return
+            
+            selected_enemy = EnemyInRoom[choice1 - 1]
+
+            CurrentEnemy.update({
+                "Name": selected_enemy,
+                "Health": 100,
+                "ID": choice1 
+            })
+
+            print(f"You are fighting: {CurrentEnemy}")
+
+        except ValueError:
+            print("Please enter a number")
+
+    elif choice == "run":
+        print("You have ran away")
+        
+    else:
+        print("Invalid choice")
+
+zombieHandler()
 
 def save_game(mapData):
     print("save function") # not sure how to implement this yet
