@@ -35,7 +35,17 @@
       "times_bought": 0,
       "effects": {
         "condition": 50
+    },
+    {
+      "id": "health_upgrade",
+      "name": "Improve Armor",
+      "cost": 50,
+      "times_bought": 0,
+      "effects": {
+        "health": 50
       }
+    }
+    
     }
   ]
 }
