@@ -30,7 +30,8 @@ def openShop(argument, mapData, current_location, current_floor):
                 print(f"New balance is {balance} ")
                 item["times_bought"] +=1
                 item["cost"] = int(item["cost"]) * 1.5
-                print(f"You've bought {item["name"]}")
+                item["effects"] = item["effects"] * 1.5
+                print(f"You've bought {item["name"]}, new effect is {item["effects"]}")
                 print(f"New cost: {item["cost"]}, Times bought: {item["times_bought"]}")
             else:
                 print(f"Not enough balance. Needed: {item["cost"]}, You have {balance}")
