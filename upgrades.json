@@ -1,0 +1,13 @@
+{
+  "Main stats": {"Strength": 1, "Speed": 1, "Health": 1},
+  "Player stats": {"Strength": 3, "Speed": 3, "Health": 4},
+
+  "Shop": {
+    "Weapons": {
+      "Bat": {"Damage": 2, "Durability": 2}
+    },
+    "Armour": {
+      "Hoodie": {"Defence": 1, "Durability": 1}
+    }
+  }
+}

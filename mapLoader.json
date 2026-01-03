@@ -7,7 +7,7 @@
     "First Floor": {
         "Hall": {
             "description": "You are in a long narrow hall",
-            "exits": {"north": "Kitchen", "south": "Main door"},
+            "exits": {"north": "Kitchen", "south": "Main door", "east": "Stair case"},
             "items": ["Bat"],
             "required_items": []
 
@@ -24,6 +24,12 @@
             "exits": {"north": "Hall"},
             "items": [],
             "required_items": ["Main door Key"]
+        },
+        "Stair case": {
+            "description": "An old, cold stair case climbing up",
+            "exits": {"north": "Hall", "south": "Second Floor"},
+            "items": [],
+            "required_items": []
         },
         
     "Second Floor": {

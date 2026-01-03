@@ -1,8 +1,5 @@
 {
-    "enemies": {
-        "Zombie": {"damage": 5, "health": 10}
-    },
-    "quests": {
-        "main": {"somethinghere": 0}
+    "Main quest:": {
+        "Harold": {"Quest": "Beginners journey", "Requirements": "None"}
     }
-} 
+}

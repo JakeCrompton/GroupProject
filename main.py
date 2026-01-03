@@ -3,6 +3,7 @@ import json, os, sys, time
 base_path = os.path.dirname(__file__) # finds the directory for the files 
 mapFile = os.path.join(base_path, "mapLoader.json")
 saveFile = os.path.join(base_path, "savefile.json")
+npcs = os.path.join(base_path, "npcs.json")
 
 with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
@@ -13,6 +14,9 @@ player_inventory = mapData['player']['inventory']
 
 # Functions
 def clearOutput(): # call this function when you want to clear whatever is in the output (cleans it up)
+    """
+    DOESNT WORK ON MAC NEED TO FIX THIS 
+    """
     os.system('cls')
 
 def commands(playerInput, current_location, current_floor):
@@ -30,7 +34,8 @@ def commands(playerInput, current_location, current_floor):
         "drop": drop,
         "pickup": pickUp,
         "inventory": inventory,
-        "help": helpCommand
+        "help": helpCommand,
+        "speak": TalkTo
     }    
 
     if command in actions:
@@ -96,7 +101,10 @@ def pickUp(item, mapData, current_location, current_floor):
     print(f"There is no {item} in this room")
     return current_location
 
-def save_game(mapData):
+def shop(arugment, mapData, current_location, current_floor):
+    print("Shop")
+
+def save_game(arugment, mapData, current_location, current_floor):
     print("save function") # not sure how to implement this yet
 
 def helpCommand(argument, mapData, current_location, current_floor):
@@ -129,6 +137,13 @@ def loadSave():
             print("Skipping...")
     time.sleep(2)
 
+def tutorial():
+    clearOutput()
+    print("This is the tutorial!")
+    print("You will learn everything you need to start your adventure!")
+
+def TalkTo(arugment, mapData, current_location, current_floor):
+    print("Trying to talk to an npc")
 
 # Main loop
 while True:
@@ -136,7 +151,7 @@ while True:
 
     print(f"You are currently at {current_location} on the {current_floor}")
 
-    exits = mapData[current_floor][current_location]['exits']
+    exits = mapData[current_floor][current_location]['exits']  #doesnt check for 2nd floor yet
     print("Exits: ")
     for direction, room in exits.items():
         print(f"->    {direction.capitalize()} to {room}")
