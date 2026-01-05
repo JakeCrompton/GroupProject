@@ -4,13 +4,13 @@
 
   "Shop": {
     "Weapons": {
-      "Bat": {"Damage": 2, "Durability": 2}
+      "Bat": {"Damage": 2, "Durability": 2, "Quantity": 1}
     },
     "Armour": {
-      "Hoodie": {"Defence": 1, "Durability": 1}
+      "Hoodie": {"Defence": 1, "Durability": 1, "Quantity": 1}
     },
     "Potions": {
-      "Small Health Potion": {"Health Regeneration": 15, "Uses": 1}
+      "Small Health Potion": {"Health Regeneration": 15, "Uses": 1, "Quantity": 1}
     }
   }
 }

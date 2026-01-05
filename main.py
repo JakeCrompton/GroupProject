@@ -24,7 +24,7 @@ def clearOutput(): # call this function when you want to clear whatever is in th
     """
     DOESNT WORK ON MAC NEED TO FIX THIS 
     """
-    os.system('cls')
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 def commands(playerInput, current_location, current_floor):
     """
@@ -46,14 +46,15 @@ def commands(playerInput, current_location, current_floor):
         "inventory": inventory,
         "help": helpCommand,
         "speak": TalkTo,
-        "shop": shop
+        "shop": shop,
+        "save": save_game,
     }    
 
     if command in actions: # checks that the command is valid
         return actions[command](arguement, mapData, current_location, current_floor) # this runs the function with the specified input
     else:
         print("Invalid input")
-        return current_location
+        return current_location, current_floor
 
 def go(direction, mapData, current_location, current_floor):
     """
@@ -62,26 +63,44 @@ def go(direction, mapData, current_location, current_floor):
     global player_inventory
 
     try:
-        new_location = mapData[current_floor][current_location]['exits'][direction] # This tries to update the players location using try except, if it fails that means the direction the player wants to move is not valid
-        required_items = mapData[current_floor][new_location].get('required_items', []) # Check if an item is required to go into a place 
+        exits = mapData[current_floor][current_location]['exits'] # All the valid exits for the current room
 
-        if required_items: # This will display the required items to the player if they do not have them in their inventory
-            for item in required_items:
+        if direction not in exits: # Checks if the direction is a real exit
+            print("Not a valid direction")
+            return current_location, current_floor
+        
+        destination = exits[direction]
+
+        if destination in mapData: # Checking that the destination is in mapData (valid location)
+            new_floor = destination
+            new_location = mapData[new_floor]['start_location']
+
+            print(f"You have moved to the {new_floor}")
+            return new_location, new_floor
+        
+        if destination in mapData[current_floor]:
+            required_items = mapData[current_floor][destination].get('required_items', [])
+
+            for item in required_items: # If there is a required item for the room it will display it to the user if they do not have it
                 if item not in player_inventory:
-                    print(f"You cannot enter {new_location} without {item}")
-                    return current_location # returns their original position because they didnt have the required items
+                    print(f"You cannot enter {destination} without {item}")
+                    return current_location, current_floor
                 
-        print(f"You have moved to {new_location}")
-        return new_location
+            print(f"You move to {destination}")
+            return destination, current_floor
+        
+        print("That location does not exist.")
+        return current_location, current_floor
     
-    except KeyError: # Error handling because if the player doesnt enter a valid direction it will give an error
-        print("Not a valid direction")
-        return current_location
+    except KeyError:  # Error handling incase the player goes to a different direction
+        print("Movement error")
+        return current_location, current_floor
 
 def inventory(argument, mapData, current_location, current_floor):
     """
     This is the inventory function, this is where the player can check what items they have
     """
+    money = 0
     maxItems = 5
 
     if len(player_inventory) > 5:
@@ -91,7 +110,7 @@ def inventory(argument, mapData, current_location, current_floor):
     for i in player_inventory:
         print(i)
 
-    return current_location
+    return current_location, current_floor
 
 def drop(item, mapData, current_location, current_floor):
     """
@@ -101,14 +120,14 @@ def drop(item, mapData, current_location, current_floor):
 
     if item not in player_inventory: # checks if the item is in the players inventory
         print("That item is not in your inventory")
-        return current_location
+        return current_location, current_floor
     
     else: # If the item is in their inventory:
         print(f"Dropped {item} in {current_location}")
         player_inventory.remove(item)  # This will drop the item and add it to the mapData where the item can be saved to that location so the player can come back and interact with it again
         mapData[current_floor][current_location]['items'].append(item)
 
-    return current_location
+    return current_location, current_floor
 
 def pickUp(item, mapData, current_location, current_floor):
     """
@@ -123,15 +142,16 @@ def pickUp(item, mapData, current_location, current_floor):
             player_inventory.append(item)  # This adds the item to the players inventory
             mapData[current_floor][current_location]['items'].remove(item) # This will remove the item off of the floor so the player can only pick it up once
             print(f"Added {item} to your inventory")
-            return current_location
+            return current_location, current_floor
         
     print(f"There is no {item} in this room")
-    return current_location
+    return current_location, current_floor
 
 def shop(arugment, mapData, current_location, current_floor):
     print("Welcome to the shop!")
     for item, data in upgradesData['Shop'].items():
         print(f"-   {item}: {data}")
+        return current_location, current_floor
 
 def save_game(arugment, mapData, current_location, current_floor):
     print("Save game")
@@ -178,7 +198,6 @@ def zombieHandler():
     else:
         print("Invalid choice")
 
-
 def save_game(mapData):
     print("save function") # not sure how to implement this yet
 
@@ -189,7 +208,7 @@ def helpCommand(argument, mapData, current_location, current_floor): # Help func
     print("-    pickup <item> | Pick up an item")
     print("-    drop <item> | Drop an item that you have in your inventory")
     print("-    help | Show this help list")
-    return current_location
+    return current_location, current_floor
 
 def loadSave():
     """
@@ -222,6 +241,10 @@ def tutorial():
 
 def TalkTo(arugment, mapData, current_location, current_floor):
     print("Trying to talk to an npc")
+    return current_location, current_floor
+
+def PlayerStats():
+    print("Player stats")
 
 # Main loop
 while True:
@@ -229,7 +252,14 @@ while True:
 
     print(f"You are currently at {current_location} on the {current_floor}")
 
-    exits = mapData[current_floor][current_location]['exits']  #doesnt check for 2nd floor yet
+    location_data = mapData[current_floor].get(current_location)
+    if not location_data or 'exits' not in location_data:
+        print("Error: Invalid location data")
+        print("Floor:", current_floor)
+        print("Location:", current_location)
+        break
+    exits = location_data['exits']
+
     print("Exits: ")
     for direction, room in exits.items():
         print(f"->    {direction.capitalize()} to {room}")
@@ -241,6 +271,5 @@ while True:
 
     print("\nWhat would you like to do?")
     choice = input("> ").lower().strip()
-    current_location = commands(choice, current_location, current_floor)
-
+    current_location, current_floor = commands(choice, current_location, current_floor)
     time.sleep(5)

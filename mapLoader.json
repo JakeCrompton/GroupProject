@@ -5,42 +5,59 @@
         "inventory": ["Main door key"]
     },
     "First Floor": {
+        "start_location": "Stair case",
         "Hall": {
             "description": "You are in a long narrow hall",
             "exits": {"north": "Kitchen", "south": "Main door", "east": "Stair case"},
             "items": ["Bat"],
             "required_items": []
-
         },
+
         "Kitchen": {
             "description": "A big kitchen",
             "exits": {"south": "Hall"},
             "items": ["key"],
             "required_items": []
-
         },
+
         "Main door": {
             "description": "The door you entered with",
             "exits": {"north": "Hall"},
             "items": [],
             "required_items": ["Main door Key"]
         },
+
         "Stair case": {
             "description": "An old, cold stair case climbing up",
             "exits": {"north": "Hall", "south": "Second Floor"},
             "items": [],
             "required_items": []
-        },
+        }
         
+    },
     "Second Floor": {
+        "start_location": "Stair case",
+        "Stair case": {
+            "description": "An old, cold stair case spiriling downwards",
+            "exits": {"north": "Rooms 101", "south": "First Floor"},
+            "items": [],
+            "required_items": []
+        },
         "Room 101": {
             "description": "Room 101 (diddys room)",
             "exits": {"south": "Elevator"},
-            "items": ["Diddys lotion"]
+            "items": ["Screwdriver"]
         }
-    }
-    
     },
+    "Third Floor": {
+        "start_location": "Elevator",
+        "Roof top": {
+            "description": "An open area overlooking the city with a glass pane in the middle of the roof",
+            "exits": {},
+            "items": []
+        }
+    },
+
     "win_condition": "player_has_won",
     "lose_condition": "player_dies"
 } 
