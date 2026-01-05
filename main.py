@@ -9,6 +9,20 @@ upgrades = os.path.join(base_path, "upgrades.json")
 CurrentEnemy = {} # defining the dictionary and list so that the enemies can reset when ran
 EnemyInRoom = []
 
+PlayerInfo = {  # This dict gives the data on the player such as, their current hp (alive or dead), level, xp and their money
+    "Level": 1,
+    "Experience": 0,
+    "Money": 0,
+    "Health": 100,
+    "Stat Points": 0
+}
+
+PlayerStats = { # This dict allows the player to make changes to how much damage they will deal, how fast they are and how much health they have
+    "Strength": 1,
+    "Speed": 1,
+    "Health": 1
+}
+
 with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
 
@@ -242,9 +256,19 @@ def tutorial():
 def TalkTo(arugment, mapData, current_location, current_floor):
     print("Trying to talk to an npc")
     return current_location, current_floor
+    
+def add_experience(amount):
+    PlayerInfo["Experience"] += amount
+    while PlayerInfo["Experience"] >= xp_to_lvlup(PlayerInfo["Level"]):
+        PlayerInfo["Experience"] -= xp_to_lvlup(PlayerInfo["Level"])
+        PlayerInfo["Level"] += 1
+        PlayerInfo["Stat Points"] += 1
+        print(f"Level up! You are now level {PlayerInfo['Level']}!")
+        print(f"You have {PlayerInfo['Stat Points']} unspent skill points.")
+        # make sure to increase all player stats naturally when they level up too (also regen hp when they level up)
 
-def PlayerStats():
-    print("Player stats")
+def xp_to_lvlup(level):
+    return 100 * (level + 1) # can change the amount of xp needed by changing the values (100 xp per level)
 
 # Main loop
 while True:
