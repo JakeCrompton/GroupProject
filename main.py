@@ -4,12 +4,16 @@ base_path = os.path.dirname(__file__) # finds the directory for the files
 mapFile = os.path.join(base_path, "mapLoader.json")
 saveFile = os.path.join(base_path, "savefile.json")
 npcs = os.path.join(base_path, "npcs.json")
+upgrades = os.path.join(base_path, "upgrades.json")
 
-CurrentEnemy = {}
+CurrentEnemy = {} # defining the dictionary and list so that the enemies can reset when ran
 EnemyInRoom = []
 
 with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
+
+with open(upgrades, "r") as file:
+    upgradesData = json.load(file)
 
 current_location = mapData['player']['start_location']  # this part of the code is where the save file could come in
 current_floor = mapData['player']['start_floor']
@@ -23,50 +27,61 @@ def clearOutput(): # call this function when you want to clear whatever is in th
     os.system('cls')
 
 def commands(playerInput, current_location, current_floor):
-    words = playerInput.lower().split()
+    """
+    This function takes the players input as the parameter and then splits up their input to check if it is valid, this is done by checking their input against the a dictionary with the function names so that they can be called
+    """
+    words = playerInput.lower().split() # splits players inputted words into a list
 
-    if len(words) >= 2 and words[0] == "pick" and words[1] == "up":
+    if len(words) >= 2 and words[0] == "pick" and words[1] == "up": # this will join the words if they are pick up
         command = "pickup"
         arguement = " ".join(words[2:]) if len(words) > 2 else None
     else:
-        command = words[0]
+        command = words[0] # This sets the command (function) as the first position from words and the rest will be the argument such as "go {direction}", go is the command and direction is the argument
         arguement = " ".join(words[1:]) if len(words) > 1 else None
 
-    actions = {
+    actions = {  # dictionary of all the valid commands
         "go": go,
         "drop": drop,
         "pickup": pickUp,
         "inventory": inventory,
         "help": helpCommand,
-        "speak": TalkTo
+        "speak": TalkTo,
+        "shop": shop
     }    
 
-    if command in actions:
-        return actions[command](arguement, mapData, current_location, current_floor)
+    if command in actions: # checks that the command is valid
+        return actions[command](arguement, mapData, current_location, current_floor) # this runs the function with the specified input
     else:
         print("Invalid input")
         return current_location
 
 def go(direction, mapData, current_location, current_floor):
+    """
+    This function will be called when the player inputs "go {direction}", the function takes the parameters of the direction and the players current location and will check it against all the valid exists in the JSON file
+    """
     global player_inventory
 
     try:
-        new_location = mapData[current_floor][current_location]['exits'][direction]
-        required_items = mapData[current_floor][new_location].get('required_items', [])
+        new_location = mapData[current_floor][current_location]['exits'][direction] # This tries to update the players location using try except, if it fails that means the direction the player wants to move is not valid
+        required_items = mapData[current_floor][new_location].get('required_items', []) # Check if an item is required to go into a place 
 
-        if required_items:
+        if required_items: # This will display the required items to the player if they do not have them in their inventory
             for item in required_items:
                 if item not in player_inventory:
                     print(f"You cannot enter {new_location} without {item}")
-                    return current_location
+                    return current_location # returns their original position because they didnt have the required items
+                
         print(f"You have moved to {new_location}")
         return new_location
     
-    except KeyError:
+    except KeyError: # Error handling because if the player doesnt enter a valid direction it will give an error
         print("Not a valid direction")
         return current_location
 
 def inventory(argument, mapData, current_location, current_floor):
+    """
+    This is the inventory function, this is where the player can check what items they have
+    """
     maxItems = 5
 
     if len(player_inventory) > 5:
@@ -79,25 +94,34 @@ def inventory(argument, mapData, current_location, current_floor):
     return current_location
 
 def drop(item, mapData, current_location, current_floor):
+    """
+    The drop function allows the player to drop items that they have in their inventory onto the floor, the location the item was dropped in stays there
+    """
     item = item.capitalize()
-    if item not in player_inventory:
+
+    if item not in player_inventory: # checks if the item is in the players inventory
         print("That item is not in your inventory")
         return current_location
-    else:
+    
+    else: # If the item is in their inventory:
         print(f"Dropped {item} in {current_location}")
-        player_inventory.remove(item)
+        player_inventory.remove(item)  # This will drop the item and add it to the mapData where the item can be saved to that location so the player can come back and interact with it again
         mapData[current_floor][current_location]['items'].append(item)
+
     return current_location
 
 def pickUp(item, mapData, current_location, current_floor):
+    """
+    This function works similar to the drop function, when the player is in a location that has an item within it, it will prompt the player and if they pick it up it will remove it from the items list that the location has
+    """
     item = item.capitalize()
     if len(player_inventory) >= 5:
         print("Your inventory is too full")
 
-    for i in mapData[current_floor][current_location]['items']:
+    for i in mapData[current_floor][current_location]['items']: # This will print all of the items within the room the player is currently in
         if i == item:
-            player_inventory.append(item)
-            mapData[current_floor][current_location]['items'].remove(item)
+            player_inventory.append(item)  # This adds the item to the players inventory
+            mapData[current_floor][current_location]['items'].remove(item) # This will remove the item off of the floor so the player can only pick it up once
             print(f"Added {item} to your inventory")
             return current_location
         
@@ -105,17 +129,21 @@ def pickUp(item, mapData, current_location, current_floor):
     return current_location
 
 def shop(arugment, mapData, current_location, current_floor):
-    print("Shop")
+    print("Welcome to the shop!")
+    for item, data in upgradesData['Shop'].items():
+        print(f"-   {item}: {data}")
 
 def save_game(arugment, mapData, current_location, current_floor):
     print("Save game")
 
 def zombieHandler():
+    """
+    """
     EnemyInRoom.clear() # reset room each time
-    amount = random.randint(1,5)
+    amount = random.randint(1,5) # Max amount of enemies that can spawn
 
     for i in range(amount):
-        UpdatedLabel = "Zombie " + str(i + 1)
+        UpdatedLabel = "Zombie " + str(i + 1) # Adds identifier to the zombie (Could make each zombie a dictionary inside a list or similar (have their own profiles then))
         EnemyInRoom.append(UpdatedLabel)
 
     print(f"{amount} zombies has spawned")
@@ -133,7 +161,7 @@ def zombieHandler():
             
             selected_enemy = EnemyInRoom[choice1 - 1]
 
-            CurrentEnemy.update({
+            CurrentEnemy.update({  # This updates the current enemy dictionary with their main hp, name and ID to make sure that the combat system will work correctly
                 "Name": selected_enemy,
                 "Health": 100,
                 "ID": choice1 
@@ -154,7 +182,7 @@ def zombieHandler():
 def save_game(mapData):
     print("save function") # not sure how to implement this yet
 
-def helpCommand(argument, mapData, current_location, current_floor):
+def helpCommand(argument, mapData, current_location, current_floor): # Help function
     print("Available commands:")
     print("-    go <direction> | Move to another room (e.g. 'go north')")
     print("-    inventory | Show what items you have")
@@ -164,6 +192,9 @@ def helpCommand(argument, mapData, current_location, current_floor):
     return current_location
 
 def loadSave():
+    """
+    This will be a feature that will allow the player to load a previous save that they have started
+    """
     print("Have you played before?")
     choice = input("> ").lower().strip()
     if choice == "yes":
@@ -195,7 +226,6 @@ def TalkTo(arugment, mapData, current_location, current_floor):
 # Main loop
 while True:
     clearOutput()
-    #zombieHandler()
 
     print(f"You are currently at {current_location} on the {current_floor}")
 

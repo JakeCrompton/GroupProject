@@ -1,6 +1,6 @@
 {
-  "Main stats": {"Strength": 1, "Speed": 1, "Health": 1},
-  "Player stats": {"Strength": 3, "Speed": 3, "Health": 4},
+  "Player stats upgrades": {"Strength": 1, "Speed": 1, "Health": 1},
+  "Player main stats": {"Strength": 3, "Speed": 3, "Health": 4},
 
   "Shop": {
     "Weapons": {
@@ -8,6 +8,9 @@
     },
     "Armour": {
       "Hoodie": {"Defence": 1, "Durability": 1}
+    },
+    "Potions": {
+      "Small Health Potion": {"Health Regeneration": 15, "Uses": 1}
     }
   }
 }
