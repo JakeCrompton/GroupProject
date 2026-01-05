@@ -5,6 +5,9 @@ mapFile = os.path.join(base_path, "mapLoader.json")
 saveFile = os.path.join(base_path, "savefile.json")
 npcs = os.path.join(base_path, "npcs.json")
 
+CurrentEnemy = {}
+EnemyInRoom = []
+
 with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
 
