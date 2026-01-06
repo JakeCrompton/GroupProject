@@ -8,10 +8,18 @@
     "Stat Points": 0
 },
 
+"Equipped": {
+    "Weapon": 0,
+    "Helmet": 0,
+    "Chest": 0,
+    "Legs": 0
+},
+
 "PlayerStats": { 
     "Strength": 1,
     "Speed": 1,
-    "Health": 1
+    "Health": 1,
+    "Defence": 0
 },
 
 "PlayerSkills": {

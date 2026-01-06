@@ -4,7 +4,9 @@
       "Sword": {"Damage": 5, "Durability": 10}
     },
     "Armour": {
-      "Hoodie": {"Defence": 1, "Durability": 1}
+      "Metal Chestplate": {"Defence": 2, "Durability": 40, "Slot": "Chest"},
+      "Metal Pants": {"Defence": 2, "Durability": 35, "Slot": "Legs"},
+      "Metal Helmet": {"Defence": 1, "Durability": 30, "Slot": "Helmet"}
     },
     "Potions": {
       "Small health potion": {"Health Regeneration": 15, "Uses": 1}

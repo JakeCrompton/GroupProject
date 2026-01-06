@@ -5,7 +5,9 @@
       "Sword": {"Quantity": 3, "Price": 50}
     },
     "Armour": {
-      "Hoodie": {"Quantity": 1, "Price": 5}
+      "Metal Helmet": {"Quantity": 1, "Price": 5},
+      "Metal Chestplate": {"Quantity": 1, "Price": 5},
+      "Metal Pants": {"Quantity": 1, "Price": 5}
     },
     "Potions": {
       "Small health potion": {"Quantity": 1, "Price": 5}

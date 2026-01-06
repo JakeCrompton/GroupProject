@@ -29,6 +29,7 @@ with open (items, "r") as file:
 PlayerInfo = playerData["PlayerInfo"]
 PlayerStats = playerData["PlayerStats"]
 PlayerSkills = playerData["PlayerSkills"]
+Equipped = playerData["Equipped"]
 
 current_location = mapData['player']['start_location']  # this part of the code is where the save file could come in
 current_floor = mapData['player']['start_floor']
@@ -114,33 +115,80 @@ def go(direction, mapData, current_location, current_floor):
         return current_location, current_floor
 
 def inventory(argument, mapData, current_location, current_floor):
-    """
-    This function takes the data from mapData variable for the avaliable items on the floor
-    """
-    if len(player_inventory) > 5:
-        print("Inventory too much")
-    elif len(player_inventory) == 0:
-        print("You have nothing in your inventory")
-        return current_location, current_floor
+    while True:
+        clearOutput()
 
-    print("You currently have:")
-    for item, quanitity in player_inventory.items():
-        print(f"{quanitity}x - {item}")
+        if len(player_inventory) >= 5:
+            print("Your inventory is full")
 
-    print("Do you want to use an item?")
-    choice = input("> ").lower().strip()
-    if choice == "yes":
-        print("Which item would you like to use")
-        WhichItemToUse = input("> ").lower().strip()
-        if WhichItemToUse.capitalize() in player_inventory:
-            if item in itemsData['Weapons']:
-                print("You are trying to equip a new weapon")
-            elif item in itemsData['Armour']:
-                print("You are trying to equip new armour")
-            elif item in itemsData['Potions']:
-                print("You are trying to use a potion")
+        if len(player_inventory) == 0:
+            print("You have nothing in your inventory")
+            time.sleep(2)
+            return current_location, current_floor
+        
+        print("You currently have:")
+        for item, quantity in player_inventory.items():
+            print(f"{quantity}x - {item}")
 
-    return current_location, current_floor
+        print("Do you want to use an item? (yes, no)")
+        choice = input("> ").lower().strip()
+
+        if choice in ("back", "no"):
+            return current_location, current_floor
+        
+        if choice != "yes":
+            print("Invalid input")
+            time.sleep(1)
+            continue
+
+        while True:
+            print("Which item would you like to use? (type 'back' to return)")
+            item_input = input("> ").strip()
+
+            if item_input.lower() == "back":
+                break
+
+            item_name = item_input.capitalize()
+
+            if item_name not in player_inventory:
+                print("You dont have that item")
+                continue
+
+            if item_name in itemsData['Weapons']:
+                print("You equipped a new weapon")
+
+            elif item_name in itemsData['Armour']:
+                armour = itemsData['Armour'][item_name]
+                slot = armour['Slot']
+                defence = armour['Defence']
+
+                if Equipped[slot] != 0:
+                    old_armour = Equipped[slot]
+                    old_def = itemsData['Armour'][old_armour]['Defence']
+                    PlayerStats['Defence'] -= old_def
+                    print(f"You unequipped {old_armour}")
+
+                Equipped[slot] = item_name
+                PlayerStats['Defence'] += defence
+
+                print(f"You equipped {item_name} in {slot} (+{defence} Defence)")
+
+            elif item_name in itemsData['Potions']:
+                heal = itemsData['Potions'][item_name]['Health Regeneration']
+                PlayerInfo['Health'] = min(
+                    PlayerInfo['Health'] + heal,
+                    PlayerInfo['Max Health']
+                )
+                print(f"You used {item_name} and regained {heal} health")
+
+                player_inventory[item_name] -= 1
+                if player_inventory[item_name] <= 0:
+                    del player_inventory[item_name]
+            else:
+                print("That item cannot be used")
+                continue
+
+            return current_location, current_floor
 
 def drop(item, mapData, current_location, current_floor):
     """
@@ -185,6 +233,7 @@ def pickUp(item, mapData, current_location, current_floor):
 def shop(arugment, mapData, current_location, current_floor):
     clearOutput()
     print("Welcome to the shop!")
+    print(f"You currently have {PlayerInfo['Money']} coins")
     time.sleep(0.5)
     inShop = True
     while inShop == True:
@@ -199,6 +248,9 @@ def shop(arugment, mapData, current_location, current_floor):
 
         if purchase_option.capitalize() not in shopData['Shop']: # Checks to see if input is for sale
             print("Invalid input")
+            time.sleep(1)
+            clearOutput()
+            continue
 
         clearOutput()
         print(f"This is currently what {purchase_option.capitalize()} we have")
@@ -430,8 +482,6 @@ def add_experience(amount):
     print(f"Level {PlayerInfo['Level']} {PlayerInfo['Experience']}xp/{xp_to_lvlup(PlayerInfo['Level'])}xp")
     return current_location, current_floor, spend_skill_point(PlayerInfo['Stat Points'])
 
-
-
 def xp_to_lvlup(level):
     return 100 * (level + 1) # can change the amount of xp needed by changing the values (100 xp per level)
 
@@ -441,9 +491,11 @@ def spend_skill_point(skillpoints):
         print(f"-   {ind}")
     spendSkillPoint = input("> ").lower().strip()
     if spendSkillPoint.capitalize() in PlayerStats:
-        print("TRYING TO SPNED POINTS")
         PlayerStats[spendSkillPoint.capitalize()] + 1
         print(f"You have increased your {spendSkillPoint} by 1!")
+        if spendSkillPoint == "health":
+            PlayerInfo['Max Health'] += 20
+            PlayerInfo['Health'] += 20
     else:
         print("Invalid input")
     time.sleep(5)

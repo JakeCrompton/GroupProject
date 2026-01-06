@@ -5,18 +5,18 @@
     "Enemies": [
     {
         "Name": "Zombie",
-        "Health": 5,
-        "Damage": 5,
+        "Health": 20,
+        "Damage": 10,
         "Speed": 2,
-        "XP": 500,
+        "XP": 60,
         "Cash": 15
     },
     {
         "Name": "Rat",
-        "Health": 5,
-        "Damage": 1,
+        "Health": 10,
+        "Damage": 5,
         "Speed": 2,
-        "XP": 210,
+        "XP": 40,
         "Cash": 10
     }
 ]
