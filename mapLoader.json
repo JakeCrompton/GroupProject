@@ -9,7 +9,7 @@
         "Hall": {
             "description": "You are in a long narrow hall",
             "exits": {"north": "Kitchen", "south": "Main door", "east": "Stair case"},
-            "items": ["Bat", "Bat", "Bat", "Bat", "Bat", "Bat"],
+            "items": ["Bat"],
             "required_items": [],
             "minAmountOfEnemies": 0,
             "maxAmountOfEnemies": 1
