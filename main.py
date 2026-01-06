@@ -448,7 +448,7 @@ def fight_enemy(enemy):
 
                 if PlayerInfo['Health'] <= 0:
                     print("You were defeated.")
-                    break # ADD LOSE CONDITION HERE (MAYBE YOU CAN HAVE 1 EXTRA LIFE)
+                    break # ADD LOSE CONDITION HERE (MAYBE YOU CAN HAVE 1 EXTRA LIFE),
 
             else:
                 print("Invalid skill, try again")
