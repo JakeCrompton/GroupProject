@@ -530,6 +530,8 @@ def startGame():
     NewOrLoad = input("> ").lower().strip()
     if NewOrLoad == "new game" or NewOrLoad == "new":
         print("Starting New game.")
+        print("Remember typing 'help' will display all commands avaliable")
+        time.sleep(1)
     elif NewOrLoad == "load save" or NewOrLoad == "continue":
         load_save()
     time.sleep(2)
