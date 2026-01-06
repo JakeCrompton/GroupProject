@@ -8,14 +8,16 @@
         "Health": 20,
         "Damage": 5,
         "Speed": 2,
-        "XP": 5
+        "XP": 50,
+        "Cash": 15
     },
     {
         "Name": "Rat",
         "Health": 5,
         "Damage": 1,
         "Speed": 2,
-        "XP": 2
+        "XP": 20,
+        "Cash": 10
     }
 ]
 }

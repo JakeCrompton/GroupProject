@@ -12,7 +12,7 @@ EnemyInRoom = []
 PlayerInfo = {  # This dict gives the data on the player such as, their current hp (alive or dead), level, xp and their money
     "Level": 1,
     "Experience": 0,
-    "Money": 0,
+    "Money": 500,
     "Health": 100,
     "Stat Points": 0
 }
@@ -124,11 +124,8 @@ def go(direction, mapData, current_location, current_floor):
 
 def inventory(argument, mapData, current_location, current_floor):
     """
-    This is the inventory function, this is where the player can check what items they have
+    This function takes the data from mapData variable for the avaliable items on the floor
     """
-    money = 0
-    maxItems = 5
-
     if len(player_inventory) > 5:
         print("Inventory too much")
 
@@ -179,10 +176,58 @@ def pickUp(item, mapData, current_location, current_floor):
     return current_location, current_floor
 
 def shop(arugment, mapData, current_location, current_floor):
+    clearOutput()
     print("Welcome to the shop!")
-    for item, data in upgradesData['Shop'].items():
-        print(f"-   {item}: {data}")
-        return current_location, current_floor
+    inShop = True
+    while inShop == True:
+        print("What would you like to view?")
+
+        for item, data in upgradesData['Shop'].items():
+            print(f"-   {item}")
+
+        purchase_option = input("> ").lower().strip()
+        if purchase_option == "go back" or purchase_option == "back":
+            return current_location, current_floor
+
+        if purchase_option.capitalize() not in upgradesData['Shop']:
+            print("Invalid input")
+            break
+
+        clearOutput()
+        print(f"This is currently what {purchase_option.capitalize()} we have")
+
+        try:
+            for item, values in upgradesData['Shop'][purchase_option.capitalize()].items():
+                print(f"-   {item} {values}")
+
+        except KeyError:
+            print("Invalid input")
+
+        print("What do you want to do?")
+        shop_dialog = input("> ").lower().strip()
+        shopWords = shop_dialog.split()
+
+        if shopWords[0] == "buy":
+            if PlayerInfo["Money"] >= upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Price']:
+                if upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] > 0:
+                    item_name = shopWords[1].capitalize()
+                    player_inventory[item_name] = player_inventory.get(item_name, 0) + 1
+                    print(f"You have bought {shopWords[1].capitalize()}. Item has been added to your inventory")
+                    upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] -= 1
+                else:
+                    print(f"The {shopWords[1]} is out of stock")
+            else:
+                print("You do not have enough money for that")
+        elif shopWords[0] == "go" and shopWords[1] == "back":
+            inShop = False
+            return current_location, current_floor      
+        elif shopWords[0] == "back":
+            inShop = False
+            return current_location, current_floor      
+        else:
+            print("Invalid input. (Go back or buy)")
+
+    return current_location, current_floor
 
 def save_game(arugment, mapData, current_location, current_floor):
     print("Save game")
@@ -263,6 +308,8 @@ def fight_enemy(enemy):
                     if enemy['Health'] <= 0:
                         print(f"The {enemy['Name']} has been defeated!")
                         enemyDefeated = True
+                        add_experience(enemy['XP'])
+                        PlayerInfo["Money"] += enemy['Cash']
                         break
 
                 if PlayerInfo['Health'] <= 0:
@@ -342,6 +389,7 @@ def TalkTo(arugment, mapData, current_location, current_floor):
     
 def add_experience(amount):
     PlayerInfo["Experience"] += amount
+    print(f"You have gained {amount}xp!")
     while PlayerInfo["Experience"] >= xp_to_lvlup(PlayerInfo["Level"]):
         PlayerInfo["Experience"] -= xp_to_lvlup(PlayerInfo["Level"])
         PlayerInfo["Level"] += 1
@@ -365,8 +413,8 @@ while True:
         print("Floor:", current_floor)
         print("Location:", current_location)
         break
+    
     exits = location_data['exits']
-
     print("Exits: ")
     for direction, room in exits.items():
         print(f"->    {direction.capitalize()} to {room}")
@@ -379,4 +427,4 @@ while True:
     print("\nWhat would you like to do?")
     choice = input("> ").lower().strip()
     current_location, current_floor = commands(choice, current_location, current_floor)
-    time.sleep(5)
+    time.sleep(3)

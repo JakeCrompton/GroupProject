@@ -1,16 +1,14 @@
 {
-  "Player stats upgrades": {"Strength": 1, "Speed": 1, "Health": 1},
-  "Player main stats": {"Strength": 3, "Speed": 3, "Health": 4},
-
   "Shop": {
     "Weapons": {
-      "Bat": {"Damage": 2, "Durability": 2, "Quantity": 1}
+      "Bat": {"Damage": 2, "Durability": 2, "Quantity": 1, "Price": 5},
+      "Sword": {"Damage": 5, "Durability": 10, "Quantity": 3, "Price": 50}
     },
     "Armour": {
-      "Hoodie": {"Defence": 1, "Durability": 1, "Quantity": 1}
+      "Hoodie": {"Defence": 1, "Durability": 1, "Quantity": 1, "Price": 5}
     },
     "Potions": {
-      "Small Health Potion": {"Health Regeneration": 15, "Uses": 1, "Quantity": 1}
+      "Small Health Potion": {"Health Regeneration": 15, "Uses": 1, "Quantity": 1, "Price": 5}
     }
   }
 }
