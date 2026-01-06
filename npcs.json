@@ -5,10 +5,10 @@
     "Enemies": [
     {
         "Name": "Zombie",
-        "Health": 20,
+        "Health": 5,
         "Damage": 5,
         "Speed": 2,
-        "XP": 50,
+        "XP": 500,
         "Cash": 15
     },
     {
@@ -16,7 +16,7 @@
         "Health": 5,
         "Damage": 1,
         "Speed": 2,
-        "XP": 20,
+        "XP": 210,
         "Cash": 10
     }
 ]

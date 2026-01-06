@@ -3,6 +3,7 @@
     "Level": 1,
     "Experience": 0,
     "Money": 500,
+    "Max Health": 100,
     "Health": 100,
     "Stat Points": 0
 },

@@ -127,6 +127,19 @@ def inventory(argument, mapData, current_location, current_floor):
     for item, quanitity in player_inventory.items():
         print(f"{quanitity}x - {item}")
 
+    print("Do you want to use an item?")
+    choice = input("> ").lower().strip()
+    if choice == "yes":
+        print("Which item would you like to use")
+        WhichItemToUse = input("> ").lower().strip()
+        if WhichItemToUse.capitalize() in player_inventory:
+            if item in itemsData['Weapons']:
+                print("You are trying to equip a new weapon")
+            elif item in itemsData['Armour']:
+                print("You are trying to equip new armour")
+            elif item in itemsData['Potions']:
+                print("You are trying to use a potion")
+
     return current_location, current_floor
 
 def drop(item, mapData, current_location, current_floor):
@@ -186,7 +199,6 @@ def shop(arugment, mapData, current_location, current_floor):
 
         if purchase_option.capitalize() not in shopData['Shop']: # Checks to see if input is for sale
             print("Invalid input")
-            break
 
         clearOutput()
         print(f"This is currently what {purchase_option.capitalize()} we have")
@@ -209,6 +221,9 @@ def shop(arugment, mapData, current_location, current_floor):
                     player_inventory[item_name] = player_inventory.get(item_name, 0) + 1 # Adds item to inventory
                     print(f"You have bought {shopWords[1].capitalize()}. Item has been added to your inventory")
                     shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] -= 1 # Removes 1 off the quantity amount
+                    
+                    if shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] <= 0:
+                        shopData['Shop'][purchase_option.capitalize()].pop(shopWords[1].capitalize())
                     print("If you wish to go back, please type 'go back' but if you wish to stay type anything else")
                     shoppingOrBack = input("> ").lower().strip()
 
@@ -216,9 +231,8 @@ def shop(arugment, mapData, current_location, current_floor):
                         return current_location, current_floor
                     clearOutput()
                 else:
-                    print(f"The {shopWords[1]} is out of stock")
-                    time.sleep(1.5)
-                    clearOutput()
+                    if shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()] <= 0:
+                        shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()].pop(shopWords[1].capitalize())
             else:
                 print("You do not have enough money for that")
         elif shopWords[0] == "go" and shopWords[1] == "back":
@@ -309,9 +323,9 @@ def fight_enemy(enemy):
                     if enemy['Health'] <= 0:
                         print(f"The {enemy['Name']} has been defeated!")
                         enemyDefeated = True
-                        add_experience(enemy['XP'])
                         PlayerInfo["Money"] += enemy['Cash']
                         print(f"You found {enemy['Cash']} coins on the {enemy['Name']}")
+                        add_experience(enemy['XP'])
                         return current_location, current_floor
 
                 if PlayerInfo['Health'] <= 0:
@@ -350,7 +364,7 @@ def fight_enemy(enemy):
                     PlayerInfo['Health'] += itemsData['Potions'][chosen_item.capitalize()]['Health Regeneration']
                     print(f"You have used a {chosen_item} and regained {itemsData['Potions'][chosen_item.capitalize()]['Health Regeneration']} health")
                    
-                    if PlayerInfo['Health'] > 100:
+                    if PlayerInfo['Health'] > PlayerInfo['Max Health']:
                         PlayerInfo['Health'] = 100
                         
                     player_inventory[chosen_item.capitalize()] -= 1
@@ -413,14 +427,32 @@ def add_experience(amount):
         print(f"Level up! You are now level {PlayerInfo['Level']}!")
         print(f"You have {PlayerInfo['Stat Points']} unspent skill points.")
         # make sure to increase all player stats naturally when they level up too (also regen hp when they level up)
+    print(f"Level {PlayerInfo['Level']} {PlayerInfo['Experience']}xp/{xp_to_lvlup(PlayerInfo['Level'])}xp")
+    return current_location, current_floor, spend_skill_point(PlayerInfo['Stat Points'])
+
+
 
 def xp_to_lvlup(level):
     return 100 * (level + 1) # can change the amount of xp needed by changing the values (100 xp per level)
 
+def spend_skill_point(skillpoints):
+    print(f"What would you like to put your {skillpoints} skill points into?")
+    for ind in PlayerStats.items():
+        print(f"-   {ind}")
+    spendSkillPoint = input("> ").lower().strip()
+    if spendSkillPoint.capitalize() in PlayerStats:
+        print("TRYING TO SPNED POINTS")
+        PlayerStats[spendSkillPoint.capitalize()] + 1
+        print(f"You have increased your {spendSkillPoint} by 1!")
+    else:
+        print("Invalid input")
+    time.sleep(5)
+    return current_location, current_floor
+
 # Main loop
 while True:
     clearOutput()
-
+    
     print(f"You are currently at {current_location} on the {current_floor}")
 
     location_data = mapData[current_floor].get(current_location)
@@ -436,7 +468,7 @@ while True:
         print(f"->    {direction.capitalize()} to {room}")
 
     if len(mapData[current_floor][current_location]['items']) > 0:
-        print("Items:")
+        print("Items in room:")
         for items in mapData[current_floor][current_location]['items']:
             print(f"-   {items.capitalize()}")
 
