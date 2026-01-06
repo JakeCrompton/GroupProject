@@ -7,7 +7,6 @@ npcs = os.path.join(base_path, "npcs.json")
 shopFile = os.path.join(base_path, "shop.json")
 playerFile = os.path.join(base_path, "player.json")
 items = os.path.join(base_path, "items.json")
-saveFile = os.path.join(base_path, "savefile.json")
 
 CurrentEnemy = {} # defining the dictionary and list so that the enemies can reset when ran
 EnemyInRoom = []
@@ -19,7 +18,9 @@ with open(shopFile, "r") as file:
     shopData = json.load(file) # This is the shop file
 
 with open(npcs, "r") as file:
-    npcData = json.load(file)["Enemies"] # Loads in NPCs
+    npc_file = json.load(file)
+    npcData = npc_file["Main quest"]
+    enemyData = npc_file["Enemies"]
 
 with open(playerFile, "r") as file:
     playerData = json.load(file) # Loading player data into the program
@@ -59,7 +60,7 @@ def commands(playerInput, current_location, current_floor):
         "pickup": pickUp,
         "inventory": inventory,
         "help": helpCommand,
-        "speak": TalkTo,
+        "talk": TalkTo,
         "shop": shop,
         "save": save_game,
     }    
@@ -71,45 +72,43 @@ def commands(playerInput, current_location, current_floor):
         return current_location, current_floor
 
 def go(direction, mapData, current_location, current_floor):
-    """
-    This function will be called when the player inputs "go {direction}", the function takes the parameters of the direction and the players current location and will check it against all the valid exists in the JSON file
-    """
     global player_inventory
 
     try:
-        exits = mapData[current_floor][current_location]['exits'] # All the valid exits for the current room
+        room_data = mapData[current_floor][current_location]
+        exits = room_data.get('exits', {})
 
-        if direction not in exits: # Checks if the direction is a real exit
+        if direction not in exits:
             print("Not a valid direction")
             return current_location, current_floor
         
         destination = exits[direction]
 
-        if destination in mapData: # Checking that the destination is in mapData (valid location)
+        if destination in mapData:
             new_floor = destination
             new_location = mapData[new_floor]['start_location']
-
-            print(f"You have moved to the {new_floor}")
+            print(f"You move to the {new_floor} using {new_location}")
             return new_location, new_floor
-        
+
         if destination in mapData[current_floor]:
             required_items = mapData[current_floor][destination].get('required_items', [])
-
-            for item in required_items: # If there is a required item for the room it will display it to the user if they do not have it
+            for item in required_items:
                 if item not in player_inventory:
                     print(f"You cannot enter {destination} without {item}")
                     return current_location, current_floor
-                
-            print(f"You move to {destination}")
-            room = mapData[current_floor][destination]
-            min_enemies = room.get('minAmountOfEnemies')
-            max_enemies = room.get('maxAmountOfEnemies')
+            
+        new_location = destination
+        new_floor = current_floor
+        print(f"You move to {new_location}")
 
+        room = mapData[current_floor][destination]
+        min_enemies = room.get('minAmountOfEnemies', 0)
+        max_enemies = room.get('maxAmountOfEnemies', 0)
+
+        if max_enemies > 0:
             spawn_enemies(min_enemies, max_enemies)
-            return destination, current_floor
         
-        print("That location does not exist.")
-        return current_location, current_floor
+        return new_location, new_floor
     
     except KeyError as e:  # Error handling incase the player goes to a different direction
         print("Movement error:", e)
@@ -123,7 +122,7 @@ def inventory(argument, mapData, current_location, current_floor):
         for slot, item in Equipped.items():
             print(f"-   {slot}: {item if item != 0 else 'None'}")
 
-        if len(player_inventory) >= 5:
+        if sum(player_inventory.values()) >= 5:
             print("\nYour inventory is full")
 
         if len(player_inventory) == 0:
@@ -159,18 +158,37 @@ def inventory(argument, mapData, current_location, current_floor):
                 print("You dont have that item")
                 continue
 
-            if item_name in itemsData['Weapons']:
-                print("You equipped a new weapon")
+            elif item_name in itemsData['Weapons']:
+                weapon = itemsData['Weapons'][item_name]
+                slot = weapon['Slot']
+                damage = weapon['Damage']
+
+                old_weapon = Equipped.get(slot)
+
+                if old_weapon and old_weapon != 0:
+                    PlayerStats['WeaponDamage'] -= itemsData['Weapons'][old_weapon]['Damage']
+                    player_inventory[old_weapon] = player_inventory.get(old_weapon, 0) + 1
+
+                Equipped[slot] = item_name
+                PlayerStats['WeaponDamage'] += damage
+
+                player_inventory[item_name] -= 1
+                if player_inventory[item_name] <= 0:
+                    del player_inventory[item_name]
+
+                print(f"You equipped {item_name} (+{damage} damage)")
 
             elif item_name in itemsData['Armour']:
                 armour = itemsData['Armour'][item_name]
                 slot = armour['Slot']
                 defence = armour['Defence']
  
-                Equipped[slot] = item_name
                 old_item = Equipped.get(slot)
-                if old_item != 0:
+                if old_item and old_item != 0:
                     PlayerStats['Defence'] -= itemsData['Armour'][old_item]['Defence']
+
+                Equipped[slot] = item_name
+                PlayerStats['Defence'] += defence
 
                 player_inventory[item_name] -= 1
                 if player_inventory[item_name] <= 0:
@@ -293,6 +311,7 @@ def shop(arugment, mapData, current_location, current_floor):
 
                 if item_name not in category_items:
                     print("Invalid item")
+                    time.sleep(2)
                     continue
 
                 item = category_items[item_name]
@@ -364,19 +383,16 @@ def load_save():
     print("Game loaded successfully")
     time.sleep(2)
 
-def spawn_enemies(min_amount, max_amount):
+def spawn_enemies(min_enemies, max_enemies):
     EnemyInRoom.clear() # clears the room every time it is called so it doesnt have previous data inside it
 
-    if min_amount is None or max_amount is None:
-        return
+    amount = random.randint(min_enemies, max_enemies)
 
-    amount = random.randint(min_amount, max_amount)
-
-    for i in range(amount):  
-        enemy = random.choice(npcData).copy()
+    for _ in range(amount):
+        enemy = random.choice(enemyData).copy()
         EnemyInRoom.append(enemy)
 
-    if amount > 0:
+    for enemy in EnemyInRoom:
         fight_enemy(enemy)
 
 def fight_enemy(enemy):
@@ -413,14 +429,20 @@ def fight_enemy(enemy):
                 playerFirst = PlayerStats['Speed'] >= enemy['Speed']  # Checks to see if the enemy or the player is faster to determine who has the first move
 
                 if playerFirst:  # Player attacks
-                    damageDealt = PlayerSkills[chosen_skill.capitalize()] * PlayerStats["Strength"]
+                    damageDealt = (
+                        PlayerSkills[chosen_skill.capitalize()] * PlayerStats['Strength']
+                        + PlayerStats.get("WeaponDamage", 0)
+                    )
                     enemy['Health'] -= damageDealt
                     print(f"You used {chosen_skill.capitalize()} and dealt {damageDealt} damage! The {enemy['Name']} has {enemy['Health']}hp remaining")
 
                     if enemy['Health'] <= 0:
                         print(f"The {enemy['Name']} has been defeated!")
                         enemyDefeated = True
-                        break
+                        PlayerInfo["Money"] += enemy['Cash']
+                        print(f"You found {enemy['Cash']} coins on the {enemy['Name']}")
+                        add_experience(enemy['XP'])
+                        return current_location, current_floor
 
                 enemy_damage = max(
                     0,
@@ -448,7 +470,8 @@ def fight_enemy(enemy):
 
                 if PlayerInfo['Health'] <= 0:
                     print("You were defeated.")
-                    break # ADD LOSE CONDITION HERE (MAYBE YOU CAN HAVE 1 EXTRA LIFE),
+                    print("Game over!")
+                    sys.exit()
 
             else:
                 print("Invalid skill, try again")
@@ -483,7 +506,7 @@ def fight_enemy(enemy):
                     print(f"You have used a {chosen_item} and regained {itemsData['Potions'][chosen_item.capitalize()]['Health Regeneration']} health")
                    
                     if PlayerInfo['Health'] > PlayerInfo['Max Health']:
-                        PlayerInfo['Health'] = 100
+                        PlayerInfo['Health'] = PlayerInfo['Max Health']
                         
                     player_inventory[chosen_item.capitalize()] -= 1
                     if player_inventory[chosen_item.capitalize()] <= 0:
@@ -512,32 +535,91 @@ def startGame():
     time.sleep(2)
 
 def TalkTo(arugment, mapData, current_location, current_floor):
-    print("Trying to talk to an npc")
-    return current_location, current_floor
+    room = mapData[current_floor][current_location]
+    npc_name = room.get("NPC")
+
+    if not npc_name:
+        print("There is no one here to talk to")
+        time.sleep(2)
+        return current_location, current_floor
     
+    npc = npcData.get(npc_name)
+    if not npc:
+        print("This person doesnt respond")
+        time.sleep(2)
+        return current_location, current_floor
+    
+    print(f"You talk to {npc_name}...")
+    time.sleep(1)
+
+    requirements = npc.get("Requirements")
+    voiceline = npc.get("Voiceline", "...")
+
+    if requirements == "None":
+        print(f"{npc_name}: {voiceline}")
+        time.sleep(3)
+        return current_location, current_floor
+    
+    if isinstance(requirements, int):
+        if PlayerInfo['Level'] >= requirements:
+            print(f"{npc_name}: {voiceline}")
+        else:
+            print(f"{npc_name}: Come back to me when your ready.")
+            print(f"(Requires level {requirements})")
+        time.sleep(3)
+        return current_location, current_floor
+    
+    if isinstance(requirements, list):
+        missing = []
+
+        for req in requirements:
+            if req not in player_inventory:
+                missing.append(req)
+
+        if missing:
+            print(f"{npc_name}: Come back to me when your ready.")
+            print("Missing:")
+            for m in missing:
+                print(f"- {m}")
+        else:
+            print(f"{npc_name}: {voiceline}")
+
+        time.sleep(3)
+        return current_location, current_floor
+
 def add_experience(amount):
     PlayerInfo["Experience"] += amount
     print(f"You have gained {amount}xp!")
+
     while PlayerInfo["Experience"] >= xp_to_lvlup(PlayerInfo["Level"]):
         PlayerInfo["Experience"] -= xp_to_lvlup(PlayerInfo["Level"])
         PlayerInfo["Level"] += 1
+        PlayerInfo['Max Health'] += 10
         PlayerInfo["Stat Points"] += 1
+        PlayerInfo["Health"] = PlayerInfo["Max Health"]
+
         print(f"Level up! You are now level {PlayerInfo['Level']}!")
         print(f"You have {PlayerInfo['Stat Points']} unspent skill points.")
-        # make sure to increase all player stats naturally when they level up too (also regen hp when they level up)
-    print(f"Level {PlayerInfo['Level']} {PlayerInfo['Experience']}xp/{xp_to_lvlup(PlayerInfo['Level'])}xp")
-    return current_location, current_floor, spend_skill_point(PlayerInfo['Stat Points'])
+
+    print(
+        f"Level {PlayerInfo['Level']} "
+        f"{PlayerInfo['Experience']}xp/{xp_to_lvlup(PlayerInfo['Level'])}xp")
+    
+    if PlayerInfo['Stat Points'] > 0:
+        spend_skill_point()
+
+    return current_location, current_floor
 
 def xp_to_lvlup(level):
     return 100 * (level + 1) # can change the amount of xp needed by changing the values (100 xp per level)
 
-def spend_skill_point(skillpoints):
-    print(f"What would you like to put your {skillpoints} skill points into?")
+def spend_skill_point():
+    print(f"What would you like to put your skill points into?")
     for ind in PlayerStats.items():
         print(f"-   {ind}")
     spendSkillPoint = input("> ").lower().strip()
     if spendSkillPoint.capitalize() in PlayerStats:
-        PlayerStats[spendSkillPoint.capitalize()] + 1
+        PlayerStats[spendSkillPoint.capitalize()] += 1
         print(f"You have increased your {spendSkillPoint} by 1!")
         if spendSkillPoint == "health":
             PlayerInfo['Max Health'] += 20
@@ -547,8 +629,15 @@ def spend_skill_point(skillpoints):
     time.sleep(5)
     return current_location, current_floor
 
+def check_win_condition(current_location, inventory):
+    if current_location == "Main door" and "Main door key" in inventory:
+        print("You unlocked the door and escaped!")
+        print("You win!")
+        return True
+    return False
+
 clearOutput()
-#startGame()
+startGame()
 while True:
     clearOutput()
     print(f"You are currently at {current_location} on the {current_floor}")
@@ -566,11 +655,18 @@ while True:
         print(f"->    {direction.capitalize()} to {room}")
 
     if len(mapData[current_floor][current_location]['items']) > 0:
-        print("Items in room:")
+        print("\nItems in room:")
         for items in mapData[current_floor][current_location]['items']:
             print(f"-   {items.capitalize()}")
+
+    npc_name = mapData[current_floor][current_location].get("NPC")
+    if npc_name:
+        print(f"\nYou see {npc_name} here")
+        print(f"You can talk to them using 'talk'")
 
     print("\nWhat would you like to do?")
     choice = input("> ").lower().strip()
     current_location, current_floor = commands(choice, current_location, current_floor)
+    if check_win_condition(current_location, player_inventory):
+        break
     time.sleep(3)

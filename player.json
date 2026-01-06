@@ -18,8 +18,8 @@
 "PlayerStats": { 
     "Strength": 1,
     "Speed": 1,
-    "Health": 1,
-    "Defence": 0
+    "Defence": 0,
+    "WeaponDamage": 0
 },
 
 "PlayerSkills": {

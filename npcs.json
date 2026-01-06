@@ -1,9 +1,9 @@
 {
-    "Main quest:": {
-        "Harold": {"Quest": "Beginners journey", "Requirements": "None"},
-        "Reagan": {"Quest": "The 2nd Floor", "Requirements": "5"},
-        "Charles": {"Quest": "The 3rd Floor", "Requirements": 10},
-        "You": {"Quest": "Escape", "Requirements": ["Level 15", "Main door key"]}
+    "Main quest": {
+        "Harold": {"Voiceline": "Talk to Reagan (2nd Floor)", "Requirements": "None"},
+        "Reagan": {"Voiceline": "Talk to Charles (3rd Floor)", "Requirements": 5},
+        "Charles": {"Voiceline": "Talk to You (High power location)", "Requirements": 10},
+        "You": {"Voiceline": "Escape (Escape)", "Requirements": ["Main door key"]}
     },
     "Enemies": [
     {

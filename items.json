@@ -1,7 +1,9 @@
 {
     "Weapons": {
-      "Bat": {"Damage": 2, "Durability": 2},
-      "Sword": {"Damage": 5, "Durability": 10}
+      "Bat": {"Damage": 3, "Slot": "Weapon"},
+      "Broken bottle": {"Damage": 5, "Slot": "Weapon"},
+      "Crowbar": {"Damage": 8, "Slot": "Weapon"},
+      "Screwdriver": {"Damage": 4, "Slot": "Weapon"}
     },
     "Armour": {
       "Metal Chestplate": {"Defence": 2, "Durability": 40, "Slot": "Chest"},
