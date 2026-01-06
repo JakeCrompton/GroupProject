@@ -1,0 +1,12 @@
+{
+    "Weapons": {
+      "Bat": {"Damage": 2, "Durability": 2},
+      "Sword": {"Damage": 5, "Durability": 10}
+    },
+    "Armour": {
+      "Hoodie": {"Defence": 1, "Durability": 1}
+    },
+    "Potions": {
+      "Small Health Potion": {"Health Regeneration": 15, "Uses": 1}
+    }
+}

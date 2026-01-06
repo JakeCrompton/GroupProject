@@ -4,8 +4,9 @@ base_path = os.path.dirname(__file__) # finds the directory for the files
 mapFile = os.path.join(base_path, "mapLoader.json")
 saveFile = os.path.join(base_path, "savefile.json")
 npcs = os.path.join(base_path, "npcs.json")
-upgrades = os.path.join(base_path, "upgrades.json")
+shopFile = os.path.join(base_path, "shop.json")
 playerFile = os.path.join(base_path, "player.json")
+items = os.path.join(base_path, "items.json")
 
 CurrentEnemy = {} # defining the dictionary and list so that the enemies can reset when ran
 EnemyInRoom = []
@@ -13,14 +14,14 @@ EnemyInRoom = []
 with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
 
-with open(upgrades, "r") as file:
-    upgradesData = json.load(file)
+with open(shopFile, "r") as file:
+    shopData = json.load(file) # This is the shop file
 
 with open(npcs, "r") as file:
-    npcData = json.load(file)["Enemies"]
+    npcData = json.load(file)["Enemies"] # Loads in NPCs
 
 with open(playerFile, "r") as file:
-    playerData = json.load(file)
+    playerData = json.load(file) # Loading player data into the program
 
 PlayerInfo = playerData["PlayerInfo"]
 PlayerStats = playerData["PlayerStats"]
@@ -165,18 +166,19 @@ def pickUp(item, mapData, current_location, current_floor):
 def shop(arugment, mapData, current_location, current_floor):
     clearOutput()
     print("Welcome to the shop!")
+    time.sleep(0.5)
     inShop = True
     while inShop == True:
         print("What would you like to view?")
 
-        for item, data in upgradesData['Shop'].items(): # This displays the different offers to the user
+        for item, data in shopData['Shop'].items(): # This displays the different offers to the user
             print(f"-   {item}")
 
         purchase_option = input("> ").lower().strip()
         if purchase_option == "go back" or purchase_option == "back": # This is to check if the user ever wants to go back
             return current_location, current_floor
 
-        if purchase_option.capitalize() not in upgradesData['Shop']: # Checks to see if input is for sale
+        if purchase_option.capitalize() not in shopData['Shop']: # Checks to see if input is for sale
             print("Invalid input")
             break
 
@@ -184,7 +186,7 @@ def shop(arugment, mapData, current_location, current_floor):
         print(f"This is currently what {purchase_option.capitalize()} we have")
 
         try:
-            for item, values in upgradesData['Shop'][purchase_option.capitalize()].items(): # displays the items for sale with the stats of them
+            for item, values in shopData['Shop'][purchase_option.capitalize()].items(): # displays the items for sale with the stats of them
                 print(f"-   {item} {values}")
 
         except KeyError: # Error handling incase the user inputs something not correct
@@ -195,14 +197,22 @@ def shop(arugment, mapData, current_location, current_floor):
         shopWords = shop_dialog.split() # splits the words up so that it can be error checked and can go back to main menu with it
 
         if shopWords[0] == "buy":   
-            if PlayerInfo["Money"] >= upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Price']: # Checks to see if the user has enough money to buy the item
-                if upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] > 0: # Checks if that the item is in stock
+            if PlayerInfo["Money"] >= shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Price']: # Checks to see if the user has enough money to buy the item
+                if shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] > 0: # Checks if that the item is in stock
                     item_name = shopWords[1].capitalize()
                     player_inventory[item_name] = player_inventory.get(item_name, 0) + 1 # Adds item to inventory
                     print(f"You have bought {shopWords[1].capitalize()}. Item has been added to your inventory")
-                    upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] -= 1 # Removes 1 off the quantity amount
+                    shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] -= 1 # Removes 1 off the quantity amount
+                    print("If you wish to go back, please type 'go back' but if you wish to stay type anything else")
+                    shoppingOrBack = input("> ").lower().strip()
+
+                    if shoppingOrBack == "go back":
+                        return current_location, current_floor
+                    clearOutput()
                 else:
                     print(f"The {shopWords[1]} is out of stock")
+                    time.sleep(1.5)
+                    clearOutput()
             else:
                 print("You do not have enough money for that")
         elif shopWords[0] == "go" and shopWords[1] == "back":
@@ -237,9 +247,7 @@ def spawn_enemies(min_amount, max_amount):
 def fight_enemy(enemy):
     time.sleep(0.5)
     clearOutput()
-    """
-    """
-    CanRun = True  # nothing wrong about thsi just need to add more things
+    CanRun = True 
     print(f"A {enemy['Name']} wants to fight you!")
     enemyDefeated = False
 
@@ -325,12 +333,14 @@ def fight_enemy(enemy):
 
             print(f"What items would you like to use?")
             print("Your current items:")
-            for item, quantity in player_inventory:
-                print(f"-   {item}{quantity}x")
+            for item, quantity in player_inventory.items():
+                print(f"- {quantity}x     {item}")
 
             chosen_item = input("> ").lower().strip()
-            for items, item in player_inventory.items():
-                print(f"-   {items}: {item} damage")
+            if chosen_item.capitalize() in player_inventory:
+                print("Item in there")
+            else:
+                print("ITEM NOT IN THERE")
 
 def helpCommand(argument, mapData, current_location, current_floor): # Help function
     print("Available commands:")

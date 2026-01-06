@@ -1,0 +1,14 @@
+{
+  "Shop": {
+    "Weapons": {
+      "Bat": {"Quantity": 1, "Price": 5},
+      "Sword": {"Quantity": 3, "Price": 50}
+    },
+    "Armour": {
+      "Hoodie": {"Quantity": 1, "Price": 5}
+    },
+    "Potions": {
+      "Small Health Potion": {"Quantity": 1, "Price": 5}
+    }
+  }
+}
