@@ -1,0 +1,19 @@
+{
+"PlayerInfo": {  
+    "Level": 1,
+    "Experience": 0,
+    "Money": 500,
+    "Health": 100,
+    "Stat Points": 0
+},
+
+"PlayerStats": { 
+    "Strength": 1,
+    "Speed": 1,
+    "Health": 1
+},
+
+"PlayerSkills": {
+    "Punch": 5
+}
+}

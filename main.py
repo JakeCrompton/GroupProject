@@ -5,27 +5,10 @@ mapFile = os.path.join(base_path, "mapLoader.json")
 saveFile = os.path.join(base_path, "savefile.json")
 npcs = os.path.join(base_path, "npcs.json")
 upgrades = os.path.join(base_path, "upgrades.json")
+playerFile = os.path.join(base_path, "player.json")
 
 CurrentEnemy = {} # defining the dictionary and list so that the enemies can reset when ran
 EnemyInRoom = []
-
-PlayerInfo = {  # This dict gives the data on the player such as, their current hp (alive or dead), level, xp and their money
-    "Level": 1,
-    "Experience": 0,
-    "Money": 500,
-    "Health": 100,
-    "Stat Points": 0
-}
-
-PlayerStats = { # This dict allows the player to make changes to how much damage they will deal, how fast they are and how much health they have
-    "Strength": 1,
-    "Speed": 1,
-    "Health": 1
-}
-
-PlayerSkills = {
-    "Punch": 5,
-}
 
 with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
@@ -36,15 +19,19 @@ with open(upgrades, "r") as file:
 with open(npcs, "r") as file:
     npcData = json.load(file)["Enemies"]
 
+with open(playerFile, "r") as file:
+    playerData = json.load(file)
+
+PlayerInfo = playerData["PlayerInfo"]
+PlayerStats = playerData["PlayerStats"]
+PlayerSkills = playerData["PlayerSkills"]
+
 current_location = mapData['player']['start_location']  # this part of the code is where the save file could come in
 current_floor = mapData['player']['start_floor']
 player_inventory = mapData['player']['inventory']
 
 # Functions
 def clearOutput(): # call this function when you want to clear whatever is in the output (cleans it up)
-    """
-    DOESNT WORK ON MAC NEED TO FIX THIS 
-    """
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def commands(playerInput, current_location, current_floor):
@@ -159,7 +146,7 @@ def pickUp(item, mapData, current_location, current_floor):
     This function works similar to the drop function, when the player is in a location that has an item within it, it will prompt the player and if they pick it up it will remove it from the items list that the location has
     """
     item = item.capitalize()
-    if sum(player_inventory.values()) >= 5:
+    if sum(player_inventory.values()) >= 5: # Checks to see if players inventory is full
         print("Your inventory is too full")
         return current_location, current_floor
     
@@ -182,14 +169,14 @@ def shop(arugment, mapData, current_location, current_floor):
     while inShop == True:
         print("What would you like to view?")
 
-        for item, data in upgradesData['Shop'].items():
+        for item, data in upgradesData['Shop'].items(): # This displays the different offers to the user
             print(f"-   {item}")
 
         purchase_option = input("> ").lower().strip()
-        if purchase_option == "go back" or purchase_option == "back":
+        if purchase_option == "go back" or purchase_option == "back": # This is to check if the user ever wants to go back
             return current_location, current_floor
 
-        if purchase_option.capitalize() not in upgradesData['Shop']:
+        if purchase_option.capitalize() not in upgradesData['Shop']: # Checks to see if input is for sale
             print("Invalid input")
             break
 
@@ -197,23 +184,23 @@ def shop(arugment, mapData, current_location, current_floor):
         print(f"This is currently what {purchase_option.capitalize()} we have")
 
         try:
-            for item, values in upgradesData['Shop'][purchase_option.capitalize()].items():
+            for item, values in upgradesData['Shop'][purchase_option.capitalize()].items(): # displays the items for sale with the stats of them
                 print(f"-   {item} {values}")
 
-        except KeyError:
+        except KeyError: # Error handling incase the user inputs something not correct
             print("Invalid input")
 
         print("What do you want to do?")
         shop_dialog = input("> ").lower().strip()
-        shopWords = shop_dialog.split()
+        shopWords = shop_dialog.split() # splits the words up so that it can be error checked and can go back to main menu with it
 
-        if shopWords[0] == "buy":
-            if PlayerInfo["Money"] >= upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Price']:
-                if upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] > 0:
+        if shopWords[0] == "buy":   
+            if PlayerInfo["Money"] >= upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Price']: # Checks to see if the user has enough money to buy the item
+                if upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] > 0: # Checks if that the item is in stock
                     item_name = shopWords[1].capitalize()
-                    player_inventory[item_name] = player_inventory.get(item_name, 0) + 1
+                    player_inventory[item_name] = player_inventory.get(item_name, 0) + 1 # Adds item to inventory
                     print(f"You have bought {shopWords[1].capitalize()}. Item has been added to your inventory")
-                    upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] -= 1
+                    upgradesData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] -= 1 # Removes 1 off the quantity amount
                 else:
                     print(f"The {shopWords[1]} is out of stock")
             else:
@@ -233,14 +220,14 @@ def save_game(arugment, mapData, current_location, current_floor):
     print("Save game")
 
 def spawn_enemies(min_amount, max_amount):
-    EnemyInRoom.clear()
+    EnemyInRoom.clear() # clears the room every time it is called so it doesnt have previous data inside it
 
     if min_amount is None or max_amount is None:
         return
 
     amount = random.randint(min_amount, max_amount)
 
-    for i in range(amount):
+    for i in range(amount):  
         enemy = random.choice(npcData).copy()
         EnemyInRoom.append(enemy)
 
@@ -274,13 +261,13 @@ def fight_enemy(enemy):
                 print(f"The {enemy['Name']} is faster than you")
             print(f"What move would you like to use on the {enemy['Name']}")
 
-            for skill, dmg in PlayerSkills.items():
+            for skill, dmg in PlayerSkills.items():  # displays the current options for the player when they choose to fight
                 print("Skills:")
                 print(f"-   {skill}: {dmg} Damage")
 
             chosen_skill = input(">  ").strip().lower()
             if chosen_skill in (skill.lower() for skill in PlayerSkills):
-                playerFirst = PlayerStats['Speed'] >= enemy['Speed']
+                playerFirst = PlayerStats['Speed'] >= enemy['Speed']  # Checks to see if the enemy or the player is faster to determine who has the first move
 
                 if playerFirst:  # Player attacks
                     damageDealt = PlayerSkills[chosen_skill.capitalize()] * PlayerStats["Strength"]
@@ -413,7 +400,7 @@ while True:
         print("Floor:", current_floor)
         print("Location:", current_location)
         break
-    
+
     exits = location_data['exits']
     print("Exits: ")
     for direction, room in exits.items():
