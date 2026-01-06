@@ -23,11 +23,18 @@ PlayerStats = { # This dict allows the player to make changes to how much damage
     "Health": 1
 }
 
+PlayerSkills = {
+    "Punch": 5,
+}
+
 with open(mapFile, "r") as file:
     mapData = json.load(file) # loads the json file as a variable
 
 with open(upgrades, "r") as file:
     upgradesData = json.load(file)
+
+with open(npcs, "r") as file:
+    npcData = json.load(file)["Enemies"]
 
 current_location = mapData['player']['start_location']  # this part of the code is where the save file could come in
 current_floor = mapData['player']['start_floor']
@@ -101,13 +108,18 @@ def go(direction, mapData, current_location, current_floor):
                     return current_location, current_floor
                 
             print(f"You move to {destination}")
+            room = mapData[current_floor][destination]
+            min_enemies = room.get('minAmountOfEnemies')
+            max_enemies = room.get('maxAmountOfEnemies')
+
+            spawn_enemies(min_enemies, max_enemies)
             return destination, current_floor
         
         print("That location does not exist.")
         return current_location, current_floor
     
-    except KeyError:  # Error handling incase the player goes to a different direction
-        print("Movement error")
+    except KeyError as e:  # Error handling incase the player goes to a different direction
+        print("Movement error:", e)
         return current_location, current_floor
 
 def inventory(argument, mapData, current_location, current_floor):
@@ -121,8 +133,8 @@ def inventory(argument, mapData, current_location, current_floor):
         print("Inventory too much")
 
     print("You currently have:")
-    for i in player_inventory:
-        print(i)
+    for item, quanitity in player_inventory.items():
+        print(f"{quanitity}x - {item}")
 
     return current_location, current_floor
 
@@ -138,7 +150,9 @@ def drop(item, mapData, current_location, current_floor):
     
     else: # If the item is in their inventory:
         print(f"Dropped {item} in {current_location}")
-        player_inventory.remove(item)  # This will drop the item and add it to the mapData where the item can be saved to that location so the player can come back and interact with it again
+        player_inventory[item] -= 1  # This will drop the item and add it to the mapData where the item can be saved to that location so the player can come back and interact with it again
+        if player_inventory[item] <= 0:
+            del player_inventory[item]
         mapData[current_floor][current_location]['items'].append(item)
 
     return current_location, current_floor
@@ -148,17 +162,20 @@ def pickUp(item, mapData, current_location, current_floor):
     This function works similar to the drop function, when the player is in a location that has an item within it, it will prompt the player and if they pick it up it will remove it from the items list that the location has
     """
     item = item.capitalize()
-    if len(player_inventory) >= 5:
+    if sum(player_inventory.values()) >= 5:
         print("Your inventory is too full")
+        return current_location, current_floor
+    
+    room_items = mapData[current_floor][current_location]['items']
 
-    for i in mapData[current_floor][current_location]['items']: # This will print all of the items within the room the player is currently in
-        if i == item:
-            player_inventory.append(item)  # This adds the item to the players inventory
-            mapData[current_floor][current_location]['items'].remove(item) # This will remove the item off of the floor so the player can only pick it up once
-            print(f"Added {item} to your inventory")
-            return current_location, current_floor
-        
-    print(f"There is no {item} in this room")
+    if item not in room_items:
+        print(f"There is no {item} in this room")
+        return current_location, current_floor
+    
+    player_inventory[item] = player_inventory.get(item, 0) + 1
+    room_items.remove(item)
+
+    print(f"Added {item} to your inventory")
     return current_location, current_floor
 
 def shop(arugment, mapData, current_location, current_floor):
@@ -170,50 +187,116 @@ def shop(arugment, mapData, current_location, current_floor):
 def save_game(arugment, mapData, current_location, current_floor):
     print("Save game")
 
-def zombieHandler():
-    """
-    """
-    EnemyInRoom.clear() # reset room each time
-    amount = random.randint(1,5) # Max amount of enemies that can spawn
+def spawn_enemies(min_amount, max_amount):
+    EnemyInRoom.clear()
+
+    if min_amount is None or max_amount is None:
+        return
+
+    amount = random.randint(min_amount, max_amount)
 
     for i in range(amount):
-        UpdatedLabel = "Zombie " + str(i + 1) # Adds identifier to the zombie (Could make each zombie a dictionary inside a list or similar (have their own profiles then))
-        EnemyInRoom.append(UpdatedLabel)
+        enemy = random.choice(npcData).copy()
+        EnemyInRoom.append(enemy)
 
-    print(f"{amount} zombies has spawned")
-    print(EnemyInRoom)
+    if amount > 0:
+        fight_enemy(enemy)
 
-    print("What would you like to do?")
-    choice = input("> ").strip().lower()
-    if choice == "fight":
-        print("Which one would you like to fight? (enter a number)")
-        try:
-            choice1 = int(input("> "))
-            if choice1 < 1 or choice1 > amount:
-                print("That isn't a valid choice")
-                return
-            
-            selected_enemy = EnemyInRoom[choice1 - 1]
+def fight_enemy(enemy):
+    time.sleep(0.5)
+    clearOutput()
+    """
+    """
+    CanRun = True  # nothing wrong about thsi just need to add more things
+    print(f"A {enemy['Name']} wants to fight you!")
+    enemyDefeated = False
 
-            CurrentEnemy.update({  # This updates the current enemy dictionary with their main hp, name and ID to make sure that the combat system will work correctly
-                "Name": selected_enemy,
-                "Health": 100,
-                "ID": choice1 
-            })
+    while not enemyDefeated:
+        if CanRun == True:
+            print("What will you do? [fight, items, run]")
+        else:
+            print("What will you do? [fight, items]")
 
-            print(f"You are fighting: {CurrentEnemy}")
+        fight_option1 = input("> ").lower().strip()
 
-        except ValueError:
-            print("Please enter a number")
+        if fight_option1 == "fight":
+            time.sleep(0.5)
 
-    elif choice == "run":
-        print("You have ran away")
-        
-    else:
-        print("Invalid choice")
+            if PlayerStats["Speed"] >= enemy['Speed']:
+                print("You have the first move.")
 
-def save_game(mapData):
-    print("save function") # not sure how to implement this yet
+            else:
+                print(f"The {enemy['Name']} is faster than you")
+            print(f"What move would you like to use on the {enemy['Name']}")
+
+            for skill, dmg in PlayerSkills.items():
+                print("Skills:")
+                print(f"-   {skill}: {dmg} Damage")
+
+            chosen_skill = input(">  ").strip().lower()
+            if chosen_skill in (skill.lower() for skill in PlayerSkills):
+                playerFirst = PlayerStats['Speed'] >= enemy['Speed']
+
+                if playerFirst:  # Player attacks
+                    damageDealt = PlayerSkills[chosen_skill.capitalize()] * PlayerStats["Strength"]
+                    enemy['Health'] -= damageDealt
+                    print(f"You used {chosen_skill.capitalize()} and dealt {damageDealt} damage! The {enemy['Name']} has {enemy['Health']}hp remaining")
+
+                    if enemy['Health'] <= 0:
+                        print(f"The {enemy['Name']} has been defeated!")
+                        enemyDefeated = True
+                        break
+
+                enemy_damage = enemy['Damage']
+                PlayerInfo['Health'] -= enemy_damage
+                time.sleep(0.5)
+                clearOutput()
+                print(f"The {enemy['Name']} attacks you for {enemy_damage} damage! {PlayerInfo['Health']} hp remaining.")
+                time.sleep(1)
+
+                if not playerFirst:
+                    damageDealt = PlayerSkills[chosen_skill.capitalize()] * PlayerStats["Strength"]
+                    enemy['Health'] -= damageDealt
+                    print(f"You used {chosen_skill.capitalize()} and dealt {damageDealt} damage! The {enemy['Name']} has {enemy['Health']}hp remaining")
+                    time.sleep(0.5)
+
+                    if enemy['Health'] <= 0:
+                        print(f"The {enemy['Name']} has been defeated!")
+                        enemyDefeated = True
+                        break
+
+                if PlayerInfo['Health'] <= 0:
+                    print("You were defeated.")
+                    break # ADD LOSE CONDITION HERE (MAYBE YOU CAN HAVE 1 EXTRA LIFE)
+
+            else:
+                print("Invalid skill, try again")
+
+        elif fight_option1 == "run":
+            if not CanRun:
+                print("You cannot run anymore!")
+                continue
+            chance = random.randint(1, 5)
+            if chance != 5:
+                print(f"You have successfully ran away from the {enemy['Name']}")
+                break
+
+            else:
+                print("You have failed to run away, you cannot run away from this fight anymore.")
+
+                CanRun = False
+        elif fight_option1 == "items":
+            print("You check your bag...")
+            time.sleep(1)
+
+            print(f"What items would you like to use?")
+            print("Your current items:")
+            for item, quantity in player_inventory:
+                print(f"-   {item}{quantity}x")
+
+            chosen_item = input("> ").lower().strip()
+            for items, item in player_inventory.items():
+                print(f"-   {items}: {item} damage")
 
 def helpCommand(argument, mapData, current_location, current_floor): # Help function
     print("Available commands:")
