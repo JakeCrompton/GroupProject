@@ -1,6 +1,9 @@
 {
     "Main quest:": {
-        "Harold": {"Quest": "Beginners journey", "Requirements": "None"}
+        "Harold": {"Quest": "Beginners journey", "Requirements": "None"},
+        "Reagan": {"Quest": "The 2nd Floor", "Requirements": "5"},
+        "Charles": {"Quest": "The 3rd Floor", "Requirements": 10},
+        "You": {"Quest": "Escape", "Requirements": ["Level 15", "Main door key"]}
     },
     "Enemies": [
     {

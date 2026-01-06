@@ -2,7 +2,8 @@
   "Shop": {
     "Weapons": {
       "Bat": {"Quantity": 1, "Price": 5},
-      "Sword": {"Quantity": 3, "Price": 50}
+      "Sword": {"Quantity": 3, "Price": 50},
+      "Crowbar": {"Quantity": 1, "Price": 150}
     },
     "Armour": {
       "Metal Helmet": {"Quantity": 1, "Price": 5},

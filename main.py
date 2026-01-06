@@ -7,6 +7,7 @@ npcs = os.path.join(base_path, "npcs.json")
 shopFile = os.path.join(base_path, "shop.json")
 playerFile = os.path.join(base_path, "player.json")
 items = os.path.join(base_path, "items.json")
+saveFile = os.path.join(base_path, "savefile.json")
 
 CurrentEnemy = {} # defining the dictionary and list so that the enemies can reset when ran
 EnemyInRoom = []
@@ -118,15 +119,19 @@ def inventory(argument, mapData, current_location, current_floor):
     while True:
         clearOutput()
 
+        print("Equipped:")
+        for slot, item in Equipped.items():
+            print(f"-   {slot}: {item if item != 0 else 'None'}")
+
         if len(player_inventory) >= 5:
-            print("Your inventory is full")
+            print("\nYour inventory is full")
 
         if len(player_inventory) == 0:
-            print("You have nothing in your inventory")
+            print("\nYou have nothing in your inventory")
             time.sleep(2)
             return current_location, current_floor
         
-        print("You currently have:")
+        print("\nYou currently have:")
         for item, quantity in player_inventory.items():
             print(f"{quantity}x - {item}")
 
@@ -148,7 +153,7 @@ def inventory(argument, mapData, current_location, current_floor):
             if item_input.lower() == "back":
                 break
 
-            item_name = item_input.capitalize()
+            item_name = item_input.title()
 
             if item_name not in player_inventory:
                 print("You dont have that item")
@@ -161,17 +166,17 @@ def inventory(argument, mapData, current_location, current_floor):
                 armour = itemsData['Armour'][item_name]
                 slot = armour['Slot']
                 defence = armour['Defence']
-
-                if Equipped[slot] != 0:
-                    old_armour = Equipped[slot]
-                    old_def = itemsData['Armour'][old_armour]['Defence']
-                    PlayerStats['Defence'] -= old_def
-                    print(f"You unequipped {old_armour}")
-
+ 
                 Equipped[slot] = item_name
-                PlayerStats['Defence'] += defence
+                old_item = Equipped.get(slot)
+                if old_item != 0:
+                    PlayerStats['Defence'] -= itemsData['Armour'][old_item]['Defence']
 
-                print(f"You equipped {item_name} in {slot} (+{defence} Defence)")
+                player_inventory[item_name] -= 1
+                if player_inventory[item_name] <= 0:
+                    del player_inventory[item_name]
+
+                print(f"You equipped {item_name} in {slot} (+{defence} defence)")
 
             elif item_name in itemsData['Potions']:
                 heal = itemsData['Potions'][item_name]['Health Regeneration']
@@ -235,71 +240,129 @@ def shop(arugment, mapData, current_location, current_floor):
     print("Welcome to the shop!")
     print(f"You currently have {PlayerInfo['Money']} coins")
     time.sleep(0.5)
-    inShop = True
-    while inShop == True:
+
+    while True:
         print("What would you like to view?")
 
-        for item, data in shopData['Shop'].items(): # This displays the different offers to the user
-            print(f"-   {item}")
+        for category in shopData['Shop']:
+            print(f"- {category}")
 
-        purchase_option = input("> ").lower().strip()
-        if purchase_option == "go back" or purchase_option == "back": # This is to check if the user ever wants to go back
+        print("Type a category name or 'back'")
+        purchase_option = input("> ").strip().title()
+
+        if purchase_option.lower() in ("back", "go back"):
             return current_location, current_floor
-
-        if purchase_option.capitalize() not in shopData['Shop']: # Checks to see if input is for sale
-            print("Invalid input")
-            time.sleep(1)
-            clearOutput()
+        
+        if purchase_option not in shopData['Shop']:
+            print("Invalid category")
             continue
 
-        clearOutput()
-        print(f"This is currently what {purchase_option.capitalize()} we have")
+        while True:
+            clearOutput()
+            print(f"{purchase_option} for sale:")
 
-        try:
-            for item, values in shopData['Shop'][purchase_option.capitalize()].items(): # displays the items for sale with the stats of them
-                print(f"-   {item} {values}")
+            category_items = shopData['Shop'][purchase_option]
 
-        except KeyError: # Error handling incase the user inputs something not correct
-            print("Invalid input")
+            if not category_items:
+                print("Nothing left in stock")
+                break
 
-        print("What do you want to do?")
-        shop_dialog = input("> ").lower().strip()
-        shopWords = shop_dialog.split() # splits the words up so that it can be error checked and can go back to main menu with it
+            for item, data in category_items.items():
+                print(f"- {item} | {data['Price']} coins | Stock: {data['Quantity']}")
 
-        if shopWords[0] == "buy":   
-            if PlayerInfo["Money"] >= shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Price']: # Checks to see if the user has enough money to buy the item
-                if shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] > 0: # Checks if that the item is in stock
-                    item_name = shopWords[1].capitalize()
-                    player_inventory[item_name] = player_inventory.get(item_name, 0) + 1 # Adds item to inventory
-                    print(f"You have bought {shopWords[1].capitalize()}. Item has been added to your inventory")
-                    shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] -= 1 # Removes 1 off the quantity amount
-                    
-                    if shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()]['Quantity'] <= 0:
-                        shopData['Shop'][purchase_option.capitalize()].pop(shopWords[1].capitalize())
-                    print("If you wish to go back, please type 'go back' but if you wish to stay type anything else")
-                    shoppingOrBack = input("> ").lower().strip()
+            print("Commands:")
+            print("-    buy <item name>")
+            print("-    back")
 
-                    if shoppingOrBack == "go back":
-                        return current_location, current_floor
-                    clearOutput()
-                else:
-                    if shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()] <= 0:
-                        shopData['Shop'][purchase_option.capitalize()][shopWords[1].capitalize()].pop(shopWords[1].capitalize())
-            else:
-                print("You do not have enough money for that")
-        elif shopWords[0] == "go" and shopWords[1] == "back":
-            inShop = False
-            return current_location, current_floor      
-        elif shopWords[0] == "back":
-            inShop = False
-            return current_location, current_floor      
-        else:
-            print("Invalid input. (Go back or buy)")
+            shop_dialog = input("> ").lower().strip()
+            shopWords = shop_dialog.split()
 
-    return current_location, current_floor
+            if not shopWords:
+                print("Please enter a command")
+                continue
+
+            if shopWords[0] == "back" or (len(shopWords) > 1 and shopWords[0] == "go" and shopWords[1] == "back"):
+                clearOutput()
+                break
+
+            if shopWords[0] == "buy":
+                if len(shopWords) < 2:
+                    print("Buy what?")
+                    continue
+                item_name = " ".join(shopWords[1:]).title()
+
+                if item_name not in category_items:
+                    print("Invalid item")
+                    continue
+
+                item = category_items[item_name]
+
+                if item['Quantity'] <= 0:
+                    print("That item is out of stock")
+                    continue
+                if PlayerInfo['Money'] < item['Price']:
+                    print("You do not have enoug money")
+                    continue
+
+                PlayerInfo['Money'] -= item['Price']
+                player_inventory[item_name] = player_inventory.get(item_name, 0) + 1
+                item['Quantity'] -= 1
+
+                print(f"You bought {item_name}")
+                print(f"{item_name} added to inventory")
+                time.sleep(2)
+
+                if item['Quantity'] <= 0:
+                    category_items.pop(item_name)
+
+                continue
+            print("Invalid command")
 
 def save_game(arugment, mapData, current_location, current_floor):
-    print("Save game")
+    save_data = {
+        "PlayerInfo": PlayerInfo,
+        "PlayerStats": PlayerStats,
+        "PlayerSkills": PlayerSkills,
+        "Equipped": Equipped,
+        "Inventory": player_inventory,
+        "Location": {
+            "Floor": current_floor,
+            "Location": current_location
+        }
+    }
+
+    with open(saveFile, "w") as file:
+        json.dump(save_data, file, indent = 4)
+
+    print("Game saved successfully!")
+    time.sleep(2)
+    return current_location, current_floor
+
+def load_save():
+    global PlayerInfo, PlayerStats, PlayerSkills
+    global Equipped, player_inventory
+    global current_location, current_floor
+
+    if not os.path.exists(saveFile):
+        print("No save file found")
+        return
+    
+    with open(saveFile, "r") as file:
+        data = json.load(file)
+
+    PlayerInfo.update(data['PlayerInfo'])
+    PlayerStats.update(data['PlayerStats'])
+    PlayerSkills.update(data['PlayerSkills'])
+    Equipped.update(data['Equipped'])
+
+    player_inventory.clear()
+    player_inventory.update(data['Inventory'])
+
+    current_floor = data['Location']['Floor']
+    current_location = data['Location']['Location']
+
+    print("Game loaded successfully")
+    time.sleep(2)
 
 def spawn_enemies(min_amount, max_amount):
     EnemyInRoom.clear() # clears the room every time it is called so it doesnt have previous data inside it
@@ -317,7 +380,7 @@ def spawn_enemies(min_amount, max_amount):
         fight_enemy(enemy)
 
 def fight_enemy(enemy):
-    time.sleep(0.5)
+    time.sleep(1)
     clearOutput()
     CanRun = True 
     print(f"A {enemy['Name']} wants to fight you!")
@@ -359,7 +422,10 @@ def fight_enemy(enemy):
                         enemyDefeated = True
                         break
 
-                enemy_damage = enemy['Damage']
+                enemy_damage = max(
+                    0,
+                    enemy['Damage'] - PlayerStats.get("Defence", 0)
+                )
                 PlayerInfo['Health'] -= enemy_damage
                 time.sleep(0.5)
                 clearOutput()
@@ -436,34 +502,14 @@ def helpCommand(argument, mapData, current_location, current_floor): # Help func
     print("-    help | Show this help list")
     return current_location, current_floor
 
-def loadSave():
-    """
-    This will be a feature that will allow the player to load a previous save that they have started
-    """
-    print("Have you played before?")
-    choice = input("> ").lower().strip()
-    if choice == "yes":
-        print("Welcome back!")
-        time.sleep(1)
-        print("Would you like to start a New game or Continue?")
-        NewOrLoad = input("> ").lower().strip()
-        if NewOrLoad == "new game" or NewOrLoad == "new":
-            print("Starting New game.")
-        else:
-            print("Loading your save..")
-    else:
-        print("Would you like to go through a tutorial?")
-        SkipTutorial = input("> ").lower().strip()
-        if SkipTutorial == "yes":
-            print("Loading tutorial..")
-        else:
-            print("Skipping...")
+def startGame():
+    print("Would you like to start a New game or Continue?")
+    NewOrLoad = input("> ").lower().strip()
+    if NewOrLoad == "new game" or NewOrLoad == "new":
+        print("Starting New game.")
+    elif NewOrLoad == "load save" or NewOrLoad == "continue":
+        load_save()
     time.sleep(2)
-
-def tutorial():
-    clearOutput()
-    print("This is the tutorial!")
-    print("You will learn everything you need to start your adventure!")
 
 def TalkTo(arugment, mapData, current_location, current_floor):
     print("Trying to talk to an npc")
@@ -501,10 +547,10 @@ def spend_skill_point(skillpoints):
     time.sleep(5)
     return current_location, current_floor
 
-# Main loop
+clearOutput()
+#startGame()
 while True:
     clearOutput()
-    
     print(f"You are currently at {current_location} on the {current_floor}")
 
     location_data = mapData[current_floor].get(current_location)

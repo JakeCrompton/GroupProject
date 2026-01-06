@@ -1,4 +1,33 @@
 {
-    "last_location": "",
-    "inventory": []
+    "PlayerInfo": {
+        "Level": 1,
+        "Experience": 0,
+        "Money": 490,
+        "Max Health": 100,
+        "Health": 100,
+        "Stat Points": 0
+    },
+    "PlayerStats": {
+        "Strength": 1,
+        "Speed": 1,
+        "Health": 1,
+        "Defence": 1
+    },
+    "PlayerSkills": {
+        "Punch": 5
+    },
+    "Equipped": {
+        "Weapon": 0,
+        "Helmet": "Metal Helmet",
+        "Chest": 0,
+        "Legs": 0
+    },
+    "Inventory": {
+        "Small health potion": 1,
+        "Metal Pants": 1
+    },
+    "Location": {
+        "Floor": "First Floor",
+        "Location": "Hall"
+    }
 }

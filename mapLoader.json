@@ -4,64 +4,142 @@
         "start_floor": "First Floor",
         "inventory": {"Small health potion": 1}
     },
+
     "First Floor": {
         "start_location": "Stair case",
         "Hall": {
             "description": "You are in a long narrow hall",
-            "exits": {"north": "Kitchen", "south": "Main door", "east": "Stair case"},
+            "exits": {"north": "Kitchen", "south": "Main door", "east": "Stair case", "west": "Front desk"},
             "items": ["Bat"],
             "required_items": [],
             "minAmountOfEnemies": 0,
-            "maxAmountOfEnemies": 1
+            "maxAmountOfEnemies": 1,
+            "NPC": "Harold"
         },
-
+        "Front desk": {
+            "description": "Empty front desk with a phone ringing",
+            "exits": {"east": "Hall", "south": "The backroom"},
+            "items": [],
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
+        },
+        "Security office": {
+            "description": "A small office filled with flickering monitors",
+            "exits": {"north": "Front desk"},
+            "items": ["Screwdriver"],
+            "required_items": ["Security office key"],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
+        },
         "Kitchen": {
             "description": "A big kitchen",
             "exits": {"south": "Hall"},
             "items": ["key"],
             "required_items": [],
             "minAmountOfEnemies": 0,
-            "maxAmountOfEnemies": 1
+            "maxAmountOfEnemies": 0
         },
-
         "Main door": {
             "description": "The door you entered with",
             "exits": {"north": "Hall"},
             "items": [],
-            "required_items": ["Main door Key"]
+            "required_items": ["Main door key"],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
         },
-
         "Stair case": {
             "description": "An old, cold stair case climbing up",
             "exits": {"north": "Hall", "south": "Second Floor"},
             "items": [],
-            "required_items": []
+            "required_items": ["Crowbar"],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0,
+            "NPC": "Reagan"
         }
-        
     },
+
     "Second Floor": {
         "start_location": "Stair case",
         "Stair case": {
             "description": "An old, cold stair case spiriling downwards",
             "exits": {"north": "Rooms 101", "south": "First Floor"},
             "items": [],
-            "required_items": []
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
         },
         "Room 101": {
-            "description": "Room 101 (diddys room)",
+            "description": "Room 101",
             "exits": {"south": "Elevator"},
-            "items": ["Screwdriver"]
-        }
-    },
-    "Third Floor": {
-        "start_location": "Elevator",
-        "Roof top": {
-            "description": "An open area overlooking the city with a glass pane in the middle of the roof",
-            "exits": {},
-            "items": []
+            "items": [],
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
+        },
+        "Room 103": {
+            "description": "Room 103",
+            "exists": {},
+            "items": [],
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
+        },
+        "Elevator": {
+            "description": "A creeky, wobbly elevator with a broken electrial panel inside",
+            "exits": {"north": "Third Floor"},
+            "items": [],
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
+        },
+        "Toilets": {
+            "description": "",
+            "exists": {},
+            "items": [],
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0,
+            "NPC": "Charles"
         }
     },
 
+    "Third Floor": {
+        "start_location": "Elevator",
+        "Third floor hall": {
+            "description": "",
+            "exits": {"south": "Elevator", "north": "Glass chamber", "east": "Laboratory", "west": "Control room"},
+            "items": [],
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
+        },
+        "Glass chamber": {
+            "description": "A sealed glass chamber with a chunky metal door",
+            "exits": {"south": "Third floor hall"},
+            "items": ["Main door key"],
+            "required_items": ["Release valve"],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
+        },
+        "Laboratory": {
+            "description": "Broken glass containers and strange equipment scattered around the room",
+            "exists": {},
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0
+        },
+        "Control room": {
+            "description": "A room fiiled with control panels and emergency power switches",
+            "exits": {},
+            "items": [],
+            "required_items": [],
+            "minAmountOfEnemies": 0,
+            "maxAmountOfEnemies": 0,
+            "NPC": "You"
+        }
+    },
+    
     "win_condition": "player_has_won",
     "lose_condition": "player_dies"
 } 
