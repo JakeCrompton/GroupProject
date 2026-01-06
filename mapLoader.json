@@ -2,7 +2,7 @@
     "player": {
         "start_location": "Hall",
         "start_floor": "First Floor",
-        "inventory": {"Main door key": 1}
+        "inventory": {"Small health potion": 1}
     },
     "First Floor": {
         "start_location": "Stair case",

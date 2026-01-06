@@ -8,7 +8,7 @@
       "Hoodie": {"Quantity": 1, "Price": 5}
     },
     "Potions": {
-      "Small Health Potion": {"Quantity": 1, "Price": 5}
+      "Small health potion": {"Quantity": 1, "Price": 5}
     }
   }
 }

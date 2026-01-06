@@ -7,6 +7,6 @@
       "Hoodie": {"Defence": 1, "Durability": 1}
     },
     "Potions": {
-      "Small Health Potion": {"Health Regeneration": 15, "Uses": 1}
+      "Small health potion": {"Health Regeneration": 15, "Uses": 1}
     }
 }

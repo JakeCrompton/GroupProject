@@ -23,6 +23,9 @@ with open(npcs, "r") as file:
 with open(playerFile, "r") as file:
     playerData = json.load(file) # Loading player data into the program
 
+with open (items, "r") as file:
+    itemsData = json.load(file)
+
 PlayerInfo = playerData["PlayerInfo"]
 PlayerStats = playerData["PlayerStats"]
 PlayerSkills = playerData["PlayerSkills"]
@@ -116,6 +119,9 @@ def inventory(argument, mapData, current_location, current_floor):
     """
     if len(player_inventory) > 5:
         print("Inventory too much")
+    elif len(player_inventory) == 0:
+        print("You have nothing in your inventory")
+        return current_location, current_floor
 
     print("You currently have:")
     for item, quanitity in player_inventory.items():
@@ -305,7 +311,8 @@ def fight_enemy(enemy):
                         enemyDefeated = True
                         add_experience(enemy['XP'])
                         PlayerInfo["Money"] += enemy['Cash']
-                        break
+                        print(f"You found {enemy['Cash']} coins on the {enemy['Name']}")
+                        return current_location, current_floor
 
                 if PlayerInfo['Health'] <= 0:
                     print("You were defeated.")
@@ -318,14 +325,15 @@ def fight_enemy(enemy):
             if not CanRun:
                 print("You cannot run anymore!")
                 continue
+            
             chance = random.randint(1, 5)
             if chance != 5:
                 print(f"You have successfully ran away from the {enemy['Name']}")
-                break
+                return current_location, current_floor
 
             else:
                 print("You have failed to run away, you cannot run away from this fight anymore.")
-
+                
                 CanRun = False
         elif fight_option1 == "items":
             print("You check your bag...")
@@ -338,9 +346,20 @@ def fight_enemy(enemy):
 
             chosen_item = input("> ").lower().strip()
             if chosen_item.capitalize() in player_inventory:
-                print("Item in there")
+                if chosen_item.capitalize() in itemsData['Potions']:
+                    PlayerInfo['Health'] += itemsData['Potions'][chosen_item.capitalize()]['Health Regeneration']
+                    print(f"You have used a {chosen_item} and regained {itemsData['Potions'][chosen_item.capitalize()]['Health Regeneration']} health")
+                   
+                    if PlayerInfo['Health'] > 100:
+                        PlayerInfo['Health'] = 100
+                        
+                    player_inventory[chosen_item.capitalize()] -= 1
+                    if player_inventory[chosen_item.capitalize()] <= 0:
+                        player_inventory.pop(chosen_item.capitalize())
+                else:
+                    print("You cannot use that item")
             else:
-                print("ITEM NOT IN THERE")
+                print("You do not have that item") 
 
 def helpCommand(argument, mapData, current_location, current_floor): # Help function
     print("Available commands:")
