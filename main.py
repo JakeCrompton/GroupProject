@@ -152,13 +152,18 @@ def inventory(argument, mapData, current_location, current_floor):
             if item_input.lower() == "back":
                 break
 
-            item_name = item_input.title()
-
-            if item_name not in player_inventory:
+            item_name_input = item_input.lower()
+            matched_item = None
+            for key in player_inventory:
+                if key.lower() == item_name_input:
+                    matched_item = key
+                    break
+            if not matched_item:
                 print("You dont have that item")
                 continue
+            item_name = matched_item
 
-            elif item_name in itemsData['Weapons']:
+            if item_name in itemsData['Weapons']:
                 weapon = itemsData['Weapons'][item_name]
                 slot = weapon['Slot']
                 damage = weapon['Damage']
@@ -275,11 +280,11 @@ def shop(arugment, mapData, current_location, current_floor):
             print("Invalid category")
             continue
 
+        category_items = shopData['Shop'][purchase_option]
+
         while True:
             clearOutput()
             print(f"{purchase_option} for sale:")
-
-            category_items = shopData['Shop'][purchase_option]
 
             if not category_items:
                 print("Nothing left in stock")
@@ -292,49 +297,54 @@ def shop(arugment, mapData, current_location, current_floor):
             print("-    buy <item name>")
             print("-    back")
 
-            shop_dialog = input("> ").lower().strip()
-            shopWords = shop_dialog.split()
-
-            if not shopWords:
+            shop_dialog = input("> ").strip()
+            if not shop_dialog:
                 print("Please enter a command")
                 continue
 
-            if shopWords[0] == "back" or (len(shopWords) > 1 and shopWords[0] == "go" and shopWords[1] == "back"):
-                clearOutput()
+            shopWords = shop_dialog.split()
+            if shopWords[0].lower() == "back":
                 break
 
-            if shopWords[0] == "buy":
+            if shopWords[0].lower() == "buy":
                 if len(shopWords) < 2:
                     print("Buy what?")
                     continue
-                item_name = " ".join(shopWords[1:]).title()
 
-                if item_name not in category_items:
+                item_name_input = " ".join(shopWords[1:]).lower()
+                matched_item = None
+                for key in category_items:
+                    if key.lower() == item_name_input:
+                        matched_item = key
+                        break
+
+                if not matched_item:
                     print("Invalid item")
-                    time.sleep(2)
+                    time.sleep(1)
                     continue
 
-                item = category_items[item_name]
+                item = category_items[matched_item]
 
                 if item['Quantity'] <= 0:
                     print("That item is out of stock")
                     continue
+
                 if PlayerInfo['Money'] < item['Price']:
-                    print("You do not have enoug money")
+                    print("You do not have enough money")
                     continue
 
                 PlayerInfo['Money'] -= item['Price']
-                player_inventory[item_name] = player_inventory.get(item_name, 0) + 1
+                player_inventory[matched_item] = player_inventory.get(matched_item, 0) + 1
                 item['Quantity'] -= 1
 
-                print(f"You bought {item_name}")
-                print(f"{item_name} added to inventory")
-                time.sleep(2)
+                print(f"You bought {matched_item}")
+                print(f"{matched_item} added to your inventory")
+                time.sleep(1)
 
                 if item['Quantity'] <= 0:
-                    category_items.pop(item_name)
-
+                    category_items.pop(matched_item)
                 continue
+
             print("Invalid command")
 
 def save_game(arugment, mapData, current_location, current_floor):
